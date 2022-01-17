@@ -47,6 +47,16 @@ namespace py = pybind11;
 
 namespace vtil::python
 {
+	class expression_reference_py : public py::class_<expression::reference>
+	{
+		public:
+		expression_reference_py( const handle& scope, const char* name )
+			: class_( scope, name )
+		{
+
+		}
+
+	};
 	class expression_py : public py::class_<expression>
 	{
 		public:

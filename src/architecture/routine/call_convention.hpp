@@ -66,7 +66,7 @@ namespace vtil::python
 		call_convention_py( const handle& scope, const char* name )
 			: class_( scope, name )
 		{
-			py::class_<call_convention_amd64_py>( scope, "call_convetion::amd64" )
+			py::class_<call_convention_amd64_py>( scope, "call_convention__amd64" )
 				// Static properties
 				//
 				.def_readonly_static( "preserve_all_convention", &amd64::preserve_all_convention )
@@ -76,7 +76,7 @@ namespace vtil::python
 				//
 				;
 
-			py::class_<call_convention_arm64_py>( scope, "call_convetion::arm64" )
+			py::class_<call_convention_arm64_py>( scope, "call_convention__arm64" )
 				// Static properties
 				//
 				.def_readonly_static( "preserve_all_convention", &arm64::preserve_all_convention )

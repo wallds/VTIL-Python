@@ -377,3 +377,6 @@ build*/
 *.pyd
 VTIL.egg-info/
 dist/
+.eggs/
+pyvtil/
+.vscode/

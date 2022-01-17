@@ -26,7 +26,9 @@
 # Introduction
 // TODO..
 
-## Building (CMake)
+Python lets go!
+
+# Building (CMake)
 
 Dependencies:
 
@@ -44,3 +46,14 @@ cmake --install . --component pyd --prefix .
 ```
 
 This will give you `vtil.pyd` in the `build` directory.
+
+# IntelliSense
+```
+set PYTHONPATH=.
+pybind11-stubgen pyvtil --non-stop
+```
+
+# TODO
+Update VTIL-Core to latest && a lot of function bind
+
+vemit disasm

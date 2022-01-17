@@ -49,7 +49,34 @@ namespace vtil::python
 {
 	class variable_py : public py::class_<variable>
 	{
+	public:
+		class memory_t_py : public py::class_<variable::memory_t>
+		{
 		public:
+			memory_t_py( const handle& scope, const char* name )
+				: class_( scope, name )
+			{
+				(*this)
+				// Constructor
+				//
+				.def( py::init<>() )
+				.def( py::init<pointer, bitcnt_t>() )
+
+				// Properties
+				//
+				.def_readwrite( "base", &variable::memory_t::base )
+				.def_readwrite( "bit_count", &variable::memory_t::bit_count )
+
+				// Functions
+				//
+				.def( "decay", &variable::memory_t::decay )
+				.def( "reduce", py::overload_cast< >( &variable::memory_t::reduce ) )
+
+				/* End */
+				;
+			}
+		};
+	public:
 		variable_py( const handle& scope, const char* name )
 			: class_( scope, name )
 		{
@@ -71,24 +98,11 @@ namespace vtil::python
 				//
 				;
 
-			py::class_<variable::memory_t>( scope, "variable::memory_t" )
-				// Constructor
-				//
-				.def( py::init<>() )
-				.def( py::init<pointer, bitcnt_t>() )
+			// Is this the right way to add an internal class?
+			// vtil::variable::memory_t
+			//
+			memory_t_py( *this, "memory_t" );
 
-				// Properties
-				//
-				.def_readwrite( "base", &variable::memory_t::base )
-				.def_readwrite( "bit_count", &variable::memory_t::bit_count )
-
-				// Functions
-				//
-				.def( "decay", &variable::memory_t::decay )
-				.def( "reduce", py::overload_cast< >( &variable::memory_t::reduce ) )
-
-				/* End */
-				;
 			
 			( *this )
 				// Constructor

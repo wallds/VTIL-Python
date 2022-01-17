@@ -56,9 +56,15 @@ namespace vtil::python
 			// Related
 			// 
 			py::class_<il_iterator>( scope, "il_iterator" )
-				.def( "get", [ ] ( const il_iterator& it ) { return *it; } );
+				.def( "get", [ ] ( const il_iterator& it ) { return *it; } )
+				.def( "prev", [ ] ( const il_iterator& it ) { auto p = it; --( p ); return p; } )
+				.def( "next", [ ] ( const il_iterator& it ) { auto p = it; ++( p ); return p; } )
+				.def( py::self == py::self );
 			py::class_<il_const_iterator>( scope, "il_const_iterator" )
-				.def( "get", [ ] ( const il_const_iterator& it ) { return *it; } );
+				.def( "get", [ ] ( const il_const_iterator& it ) { return *it; } )
+				.def( "prev", [ ] ( const il_const_iterator& it ) { auto p = it; --( p ); return p; } )
+				.def( "next", [ ] ( const il_const_iterator& it ) { auto p = it; ++( p ); return p; } )
+				.def( py::self == py::self );
 
 			( *this )
 				// Constructor

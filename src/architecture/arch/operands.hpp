@@ -49,29 +49,39 @@ namespace vtil::python
 {
 	class operand_py : public py::class_<operand>
 	{
-		public:
+	public:
+		class immediate_t_py : public py::class_<operand::immediate_t>
+		{
+			public:
+			immediate_t_py( const handle& scope, const char* name )
+				: class_( scope, name )
+			{
+					( *this )
+					// Constructor
+					//
+					.def( py::init<>() )
+					.def( py::init<uint64_t, bitcnt_t>() )
+
+					// Properties
+					//
+					.def_readwrite( "i64", &operand::immediate_t::i64 )
+					.def_readwrite( "u64", &operand::immediate_t::u64 )
+
+					.def_readwrite( "bit_count", &operand::immediate_t::bit_count )
+
+					// Functions
+					//
+					.def( "reduce", py::overload_cast< >( &operand::immediate_t::reduce ) )
+					;
+			}
+		};
+
 		operand_py( const handle& scope, const char* name )
 			: class_( scope, name )
 		{
-			py::class_<operand::immediate_t>( scope, "operand::immediate_t" )
-				// Constructor
-				//
+				immediate_t_py( *this, "immediate_t" );
+				( *this )
 				.def( py::init<>() )
-				.def( py::init<uint64_t, bitcnt_t>() )
-
-				// Properties
-				//
-				.def_readwrite( "i64", &operand::immediate_t::i64 )
-				.def_readwrite( "u64", &operand::immediate_t::u64 )
-
-				.def_readwrite( "bit_count", &operand::immediate_t::bit_count )
-
-				// Functions
-				//
-				.def( "reduce", py::overload_cast< >( &operand::immediate_t::reduce ) )
-				;
-
-			( *this )
 				// Properties
 				//
 				.def_readwrite( "descriptor", &operand::descriptor )
@@ -115,14 +125,22 @@ namespace pybind11::detail
 		public:
 		bool load( handle src, bool convert )
 		{
+			// py::print(src.get_type().str());
+			auto baseCaster = type_caster_generic(typeid(operand));
+			if (baseCaster.load(src, convert))
+			{
+				value = baseCaster.value;
+				return true;
+			}
+			//this->value = src;
+			//return true;
 			if ( py::isinstance<py::int_>( src ) )
 			{
 				auto value = py::cast<uint64_t>( src );
 				this->value = new operand( value, sizeof( value ) * 8 );
 				return true;
 			}
-
-			return explicit_cast< arm64_reg >( src ) || explicit_cast< x86_reg >( src ) || explicit_cast< register_desc >( src );
+			return explicit_cast<arm64_reg>(src) || explicit_cast<x86_reg>(src) || explicit_cast<register_desc>(src);
 		}
 
 		static handle cast( operand* src, return_value_policy policy, handle parent )

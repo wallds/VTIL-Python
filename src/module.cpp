@@ -66,6 +66,8 @@
 #include "external/arm64_reg.hpp"
 #include "external/x86_reg.hpp"
 
+#include "optimizer/auxiliaries.hpp"
+
 using namespace vtil::python;
 namespace py = pybind11;
 
@@ -77,70 +79,83 @@ PYBIND11_MODULE(vtil, m) {
 		throw std::runtime_error( msg );
 	};
 
-	// VTIL Architecture
-	//
-	auto arch = m.def_submodule( "arch", "VTIL Architecture" );
-	{
-		/* Architecture */
-		architecture_identifier_py( arch, "architecture_identifier" );
-		instruction_desc_py( arch, "instruction_desc" );
-		operand_py( arch, "operand" );
-		register_desc_py( arch, "register_desc" );
-
-		/* Instruction Stream */
-		basic_block_py( arch, "basic_block" );
-		call_convention_py( arch, "call_convention" );
-		instruction_py( arch, "instruction" );
-		routine_py( arch, "routine" );
-
-		/* Miscellaneous */
-		debug_py( arch, "debug" );
-
-		/* Value Tracing */
-		tracer_py( arch, "tracer" );
-		cached_tracer_py( arch, "cached_tracer" );
-
-		/* SymEx Integration */
-		variable_py( arch, "variable" );
-	}
-
+	auto hello = m.def_submodule( "hello", "VTIL hello" );
+	auto common = m.def_submodule( "common", "VTIL Common" );
+	auto compiler = m.def_submodule( "compiler", "VTIL Compiler" );
+	auto symex = m.def_submodule( "symex", "VTIL SymEx" );
+	// auto optimizer = m.def_submodule( "optimizer", "VTIL Optimizer" );
+	// auto auxiliaries = optimizer.def_submodule( "auxiliaries", "VTIL optimizer auxiliaries" );
+	
 
 	// VTIL Common
 	//
-	auto common = m.def_submodule( "common", "VTIL Common" );
 	{
 		/* Utility */
 		fnv64_hash_py( common, "fnv64" );
 		fnv128_hash_py( common, "fnv128" );
 	}
 
+	// VTIL SymEx
+	//
+	{
+		/* Expressions */
+		unique_identifier_py( symex, "uid" );
+		expression_reference_py( symex, "expression_reference" );
+		expression_py( symex, "expression" );
+	}
+
+	{
+		/* Architecture */
+		operand_py( m, "operand" );
+
+		// FIXME: vtil.operand.immediate_t
+		// 
+		architecture_identifier_py( m, "architecture_identifier" );
+		instruction_desc_py( m, "instruction_desc" );
+		register_desc_py( m, "register_desc" );
+
+		/* Instruction Stream */
+		instruction_py( m, "instruction" );
+		basic_block_py( m, "basic_block" );
+		call_convention_py( m, "call_convention" );
+		routine_py( m, "routine" );
+
+		/* Miscellaneous */
+		debug_py( m, "debug" );
+
+		/* SymEx Integration */
+		variable_py( m, "variable" );
+
+		/* Value Tracing */
+		tracer_py( m, "tracer" );
+		cached_tracer_py( m, "cached_tracer" );
+
+	}
+
+
+
 
 	// VTIL Compiler
-	auto compiler = m.def_submodule( "compiler", "VTIL Compiler" );
 	{
 		/* Common */
 		pass_interface_py( compiler, "pass_interface" );
 	}
 
 
-	// VTIL SymEx
-	//
-	auto symex = m.def_submodule( "symex", "VTIL SymEx" );
-	{
-		/* Expressions */
-		unique_identifier_py( symex, "uid" );
-		expression_py( symex, "expression" );
-	}
-
 
 	// External
 	//
 	{
-		arm64_reg_py( arch, "arm64_reg" );
-		x86_reg_py( arch, "x86_reg" );
+		arm64_reg_py( m, "arm64_reg" );
+		x86_reg_py( m, "x86_reg" );
 	}
 
-
+	// Optimizer
+	//
+	{
+		optimizer_py( m, "optimizer");
+	}
+	
 #ifdef VERSION_INFO
 	m.attr("__version__") = VERSION_INFO;
 #else

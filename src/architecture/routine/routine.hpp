@@ -115,7 +115,7 @@ namespace vtil::python
 				.def( "get_cconv", &routine::get_cconv )
 				.def( "set_cconv", &routine::set_cconv )
 				.def( "clone", &routine::clone )
-
+				//.def( "get_block", &routine::get_block )
 				// End
 				//
 				;

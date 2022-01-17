@@ -12,7 +12,7 @@ import os
 
 VERSION = '0.0.3'
 CORE_COMMIT = 'c13dbc0'
-PYBIND11_COMMIT = 'd54d6d8'
+PYBIND11_COMMIT = '3a1eddab54e48bd80cc167c242bc1d9f537498c1'
 
 
 class CMakeExtension(Extension):
@@ -72,9 +72,10 @@ class BuildCMakeExtension(build_ext):
                     git.Repo.clone_from('https://github.com/vtil-project/VTIL-Core.git', 'external/core').git.checkout(CORE_COMMIT)
                 if not os.path.exists('external/pybind11'):
                     git.Repo.clone_from('https://github.com/pybind/pybind11.git', 'external/pybind11').git.checkout(PYBIND11_COMMIT)
-
-            self.announce('Preparing build for platform ..', level=3)
-            self.spawn(self.build_for_platform())
+            if not os.path.exists('build/VTIL-Python.sln'):
+                # slow
+                self.announce('Preparing build for platform ..', level=3)
+                self.spawn(self.build_for_platform())
 
             self.announce('Building ..', level=3)
             self.spawn(self.build_cmake())
@@ -83,16 +84,16 @@ class BuildCMakeExtension(build_ext):
         self.spawn(self.gen_libs())
 
         self.announce('Copying wrappers ..', level=3)
-        copy_tree("src/wrappers", "vtil")
+        copy_tree("src/wrappers", "pyvtil")
 
     @staticmethod
     def build_for_platform():
         extras = []
         if platform.system() == 'Windows':
-            import cmakegenerators
-
-            if 'Visual Studio 16 2019' not in [gen.name for gen in cmakegenerators.get_generators()]:
-                raise Exception('Visual Studio 2019 not found')
+            # import cmakegenerators
+            # 
+            # if 'Visual Studio 16 2019' not in [gen.name for gen in cmakegenerators.get_generators()]:
+            #     raise Exception('Visual Studio 2019 not found')
             
             extras = ['-G', 'Visual Studio 16 2019']
 
@@ -121,7 +122,7 @@ class BuildCMakeExtension(build_ext):
                 "cmake",
                 "--install", "build",
                 "--component", "pyd",
-                "--prefix", "vtil"
+                "--prefix", "pyvtil"
             ]
 
 
@@ -170,8 +171,8 @@ setup(
     keywords='VTIL, VTIL Project, vtil, Virtual-machine Translation Intermediate Language, '
              'Translation Intermediate Language, Intermediate Language',
     zip_safe=True,
-    packages=['vtil'],
+    packages=['pyvtil'],
     package_data={
-        'vtil': ['vtil.pyd', 'vtil.so', '*.py', '**/*.py'],
+        'pyvtil': ['vtil.pyd', 'vtil.so', '*.py', '**/*.py'],
     }
 )
