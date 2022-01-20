@@ -10,6 +10,7 @@ import ida_lines
 import ida_dbg
 import ida_graph
 import ida_kernwin
+import ida_ida
 from pyvtil import *
 
 
@@ -70,7 +71,8 @@ class GraphTrace(_base_graph_action_handler_t):
                     choose = 0
                 # it = it.prev()
                 tracer = vtil.tracer()
-                print(tracer.rtrace_p(vtil.variable(it, ops[choose].reg())).simplify(True))
+                print(tracer.rtrace_p(vtil.variable(
+                    it, ops[choose].reg())).simplify(True))
         return 0
 
     def update(self, ctx):
@@ -263,8 +265,16 @@ class MyGraph(ida_graph.GraphViewer):
             return True
         for vip, b in self.rtn.explored_blocks.items():
             b: vtil.basic_block
-            s = hex(vip)+': sp_offset('+hex(b.sp_offset)+')\n'
+            s = hex(vip)+':\n'
             for i in b:
+                i: vtil.instruction
+                _prefix = f'[{i.sp_index:>2}] ' if i.sp_index > 0 else '     '
+                x = '>' if i.sp_reset > 0 else ' '
+                x += '+' if i.sp_offset > 0 else '-'
+                x += hex(abs(i.sp_offset))
+                _prefix += f'{x:<6} '
+                if ida_ida.inf_show_line_pref():
+                    s += ida_lines.COLSTR(_prefix, ida_lines.SCOLOR_PREFIX)
                 s += instruction_tostring(i)+'\n'
             color = self.color
             self.AddNode((s.removesuffix('\n'), color))
