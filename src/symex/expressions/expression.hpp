@@ -53,7 +53,14 @@ namespace vtil::python
 		expression_reference_py( const handle& scope, const char* name )
 			: class_( scope, name )
 		{
+			( *this )
+			.def( "simplify", []( const expression::reference *p, bool prettify ){ return p->simplify(prettify); }, 
+							py::arg("prettify") = false )
 
+			.def( "to_string", &expression_reference::to_string )
+			.def( "__repr__", &expression_reference::to_string )
+			.def( "__str__", &expression_reference::to_string )
+			;
 		}
 
 	};
@@ -110,9 +117,8 @@ namespace vtil::python
 				.def( "is_identical", &expression::is_identical )
 				.def( "equals", &expression::equals )
 
-				.def( "evaluate", &expression::evaluate )
-				.def( "clone", &expression::clone )
-				.def( "make_lazy", &expression::make_lazy )
+				.def( "evaluate", [ ] ( expression& exp, std::function < uint64_t( unique_identifier )>& fn ) { exp.evaluate( fn ); } )
+				.def( "make_lazy", py::overload_cast< >( &expression::make_lazy ) )
 
 				.def( "__repr__", &expression::to_string )
 				.def( "__str__", &expression::to_string )

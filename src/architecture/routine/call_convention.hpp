@@ -54,11 +54,11 @@ namespace vtil::python
 		//
 	};
 
-	struct call_convention_arm64_py
-	{
-		// Dummy arm64 struct
-		//
-	};
+	// struct call_convention_arm64_py
+	// {
+	// 	// Dummy arm64 struct
+	// 	//
+	// };
 
 	class call_convention_py : public py::class_<call_convention>
 	{
@@ -76,16 +76,16 @@ namespace vtil::python
 				//
 				;
 
-			py::class_<call_convention_arm64_py>( scope, "call_convention__arm64" )
-				// Static properties
-				//
-				.def_readonly_static( "preserve_all_convention", &arm64::preserve_all_convention )
-				.def_readonly_static( "default_call_convention", &arm64::default_call_convention )
-				.def_readonly_static( "vector_call_convention", &arm64::vector_call_convention )
+			// py::class_<call_convention_arm64_py>( scope, "call_convention__arm64" )
+			// 	// Static properties
+			// 	//
+			// 	.def_readonly_static( "preserve_all_convention", &arm64::preserve_all_convention )
+			// 	.def_readonly_static( "default_call_convention", &arm64::default_call_convention )
+			// 	.def_readonly_static( "vector_call_convention", &arm64::vector_call_convention )
 
-				// End
-				//
-				;
+			// 	// End
+			// 	//
+			// 	;
 
 			( *this )
 				// Constructors
@@ -95,7 +95,7 @@ namespace vtil::python
 				// Static properties
 				//
 				.def_property_readonly_static( "amd64", [ ] ( py::object& ) { static auto instance = call_convention_amd64_py(); return instance; } )
-				.def_property_readonly_static( "arm64", [ ] ( py::object& ) { static auto instance = call_convention_arm64_py(); return instance; } )
+				// .def_property_readonly_static( "arm64", [ ] ( py::object& ) { static auto instance = call_convention_arm64_py(); return instance; } )
 
 				// Properties
 				//

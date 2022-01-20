@@ -56,7 +56,7 @@
 #include "architecture/symex/variable.hpp"
 
 #include "common/util/fnv64.hpp"
-#include "common/util/fnv128.hpp"
+// #include "common/util/fnv128.hpp"
 
 #include "compiler/common/interface.hpp"
 
@@ -92,7 +92,7 @@ PYBIND11_MODULE(vtil, m) {
 	{
 		/* Utility */
 		fnv64_hash_py( common, "fnv64" );
-		fnv128_hash_py( common, "fnv128" );
+		// fnv128_hash_py( common, "fnv128" );
 	}
 
 	// VTIL SymEx
@@ -146,7 +146,7 @@ PYBIND11_MODULE(vtil, m) {
 	// External
 	//
 	{
-		arm64_reg_py( m, "arm64_reg" );
+		// arm64_reg_py( m, "arm64_reg" );
 		x86_reg_py( m, "x86_reg" );
 	}
 

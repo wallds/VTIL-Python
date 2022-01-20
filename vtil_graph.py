@@ -1,5 +1,6 @@
 # idapython fix
 import sys
+import collections
 import ida_lines
 # -----------------------------------------------------------------------
 # This is an example illustrating how to use the user graphing functionality
@@ -29,6 +30,7 @@ class GraphCloser(_base_graph_action_handler_t):
         print('close graph:', self.graph)
         self.graph.Close()
 
+
 class GraphTrace(_base_graph_action_handler_t):
     def activate(self, ctx):
         place, _, _ = ida_kernwin.get_custom_viewer_place(
@@ -39,6 +41,8 @@ class GraphTrace(_base_graph_action_handler_t):
         if node_id < 0 or place.lnnum < 1:
             return 0
         block = None
+        if self.graph.rtn is None:
+            return 0
         for vip, b in self.graph.rtn.explored_blocks.items():
             if vip == self.graph.list_vip[node_id]:
                 block = b
@@ -66,12 +70,12 @@ class GraphTrace(_base_graph_action_handler_t):
                     choose = 0
                 # it = it.prev()
                 tracer = vtil.tracer()
-                print(tracer.rtrace_p(vtil.variable(it, ops[choose].reg()), -1).simplify(True))
-                # 
+                print(tracer.rtrace_p(vtil.variable(it, ops[choose].reg())).simplify(True))
         return 0
 
     def update(self, ctx):
         return ida_kernwin.AST_ENABLE_FOR_WIDGET
+
 
 class GraphErase(_base_graph_action_handler_t):
     def activate(self, ctx):
@@ -84,6 +88,8 @@ class GraphErase(_base_graph_action_handler_t):
         if node_id < 0 or ln < 0:
             return 0
         block = None
+        if self.graph.rtn is None:
+            return 0
         for vip, b in self.graph.rtn.explored_blocks.items():
             if vip == self.graph.list_vip[node_id]:
                 block = b
@@ -104,9 +110,12 @@ class GraphErase(_base_graph_action_handler_t):
     def update(self, ctx):
         return ida_kernwin.AST_ENABLE_FOR_WIDGET
 
+
 class GraphApplyAllProfiled(_base_graph_action_handler_t):
     def activate(self, ctx):
         print('apply_all_profiled')
+        if self.graph.rtn is None:
+            return 0
         vtil.optimizer.apply_all_profiled(self.graph.rtn)
         # self.graph.Refresh()
         # ida_graph.viewer_center_on(ida_graph.get_graph_viewer(self.graph.GetWidget()), 0)
@@ -115,10 +124,26 @@ class GraphApplyAllProfiled(_base_graph_action_handler_t):
     def update(self, ctx):
         return ida_kernwin.AST_ENABLE_FOR_WIDGET
 
+
+class GraphLoad(_base_graph_action_handler_t):
+    def activate(self, ctx):
+        print('Load')
+        _path = ida_kernwin.ask_file(False, '*.vtil', 'Choose vtil file:')
+        if _path:
+            self.graph.rtn = vtil.routine.load(_path)
+        return 1
+
+    def update(self, ctx):
+        return ida_kernwin.AST_ENABLE_FOR_WIDGET
+
+
 class GraphSave(_base_graph_action_handler_t):
     def activate(self, ctx):
         print('Save')
-        _path = ida_kernwin.ask_file(True, '*.vtil', 'Enter name of vtil file:')
+        if self.graph.rtn is None:
+            return 0
+        _path = ida_kernwin.ask_file(
+            True, '*.vtil', 'Enter name of vtil file:')
         if _path:
             self.graph.rtn.save(_path)
         return 0
@@ -218,7 +243,7 @@ class MyGraph(ida_graph.GraphViewer):
         self.list_vip = []
         self.focus = True
         self.title = title
-        self.rtn: vtil.routine
+        self.rtn: vtil.routine = None
         ida_graph.GraphViewer.__init__(self, self.title, True)
         self.color = 0xffffff
         self.jump_to_desc = ida_kernwin.action_desc_t(
@@ -234,10 +259,12 @@ class MyGraph(ida_graph.GraphViewer):
     def OnRefresh(self):
         self.Clear()
         self.list_vip = []
+        if self.rtn is None:
+            return True
         for vip, b in self.rtn.explored_blocks.items():
             b: vtil.basic_block
             s = hex(vip)+': sp_offset('+hex(b.sp_offset)+')\n'
-            for i in b.stream:
+            for i in b:
                 s += instruction_tostring(i)+'\n'
             color = self.color
             self.AddNode((s.removesuffix('\n'), color))
@@ -246,7 +273,7 @@ class MyGraph(ida_graph.GraphViewer):
         for vip, b in self.rtn.explored_blocks.items():
             s = self.list_vip.index(vip)
             # if b.size() > 0:
-            #     back = b.stream[-1]
+            #     back = b.back()
             #     if back.base.name == 'js':
             #         cond, dst1, dst2 = back.operands
             #         # op1 op2 is imm -> mark tbranch and fbranch
@@ -265,27 +292,18 @@ class MyGraph(ida_graph.GraphViewer):
         return self[node_id]
 
     def OnPopup(self, form, popup_handle):
-        # 
-        actname = "graph_closer:%s" % self.title
-        desc = ida_kernwin.action_desc_t(actname, "Close:", GraphCloser(self))
-        ida_kernwin.attach_dynamic_action_to_popup(form, popup_handle, desc)
-        # print
-        actname = "apply_all_profiled:%s" % self.title
-        desc = ida_kernwin.action_desc_t(actname, "apply_all_profiled", GraphApplyAllProfiled(self))
-        ida_kernwin.attach_dynamic_action_to_popup(form, popup_handle, desc)
-        # trace
-        actname = "Trace:%s" % self.title
-        desc = ida_kernwin.action_desc_t(actname, "Trace", GraphTrace(self))
-        ida_kernwin.attach_dynamic_action_to_popup(form, popup_handle, desc)
-        # erase
-        actname = "Erase:%s" % self.title
-        desc = ida_kernwin.action_desc_t(actname, "Erase", GraphErase(self))
-        ida_kernwin.attach_dynamic_action_to_popup(form, popup_handle, desc)
-        # TODO:
-        # 2. save vtil file
-        actname = "Save:%s" % self.title
-        desc = ida_kernwin.action_desc_t(actname, "Save", GraphSave(self))
-        ida_kernwin.attach_dynamic_action_to_popup(form, popup_handle, desc)
+        popup = collections.OrderedDict({
+            'Close': GraphCloser(self),
+            'apply_all_profiled': GraphApplyAllProfiled(self),
+            'Trace': GraphTrace(self),
+            'Erase': GraphErase(self),
+            'Load': GraphLoad(self),
+            'Save': GraphSave(self),
+        })
+        for k, v in popup.items():
+            ida_kernwin.attach_dynamic_action_to_popup(
+                form, popup_handle,
+                ida_kernwin.action_desc_t(k + ":" + self.title, k, v))
 
     def OnClose(self):
         print('close', self.GetWidget())
@@ -315,7 +333,7 @@ class MyGraph(ida_graph.GraphViewer):
                 self.jumpto(self.list_vip.index(addr), 0)
 
         return True
-        
+
     def jumpto(self, nid, lnnum):
         place = ida_graph.create_user_graph_place(nid, lnnum)
         ida_kernwin.jumpto(self.GetWidget(), place, -1, -1)
@@ -335,9 +353,8 @@ def show_graph(ea):
     # g.rtn = block.owner
 
     _path = ida_kernwin.ask_file(False, '*.vtil', 'Choose vtil file:')
-    if not _path:
-        _path = 'F:\\VMP_Sample\\Sample_vmp3.4\\test_asm\\vms\\000000000008F250.premature.vtil'
-    g.rtn = vtil.routine.load(_path)
+    if _path:
+        g.rtn = vtil.routine.load(_path)
     if g.Show():
         # jumpto(g.GetWidget(), ida_graph.create_user_graph_place(0,1), 0, 0)
         ida_graph.viewer_set_titlebar_height(g.GetWidget(), 15)

@@ -54,6 +54,4 @@ pybind11-stubgen pyvtil --non-stop
 ```
 
 # TODO
-Update VTIL-Core to latest && a lot of function bind
-
 vemit disasm

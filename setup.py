@@ -11,7 +11,7 @@ import os
 
 
 VERSION = '0.0.3'
-CORE_COMMIT = 'c13dbc0'
+CORE_COMMIT = '6e5070c0c10d14662d4b9b9ed8fd89dc98bf20b2'
 PYBIND11_COMMIT = '3a1eddab54e48bd80cc167c242bc1d9f537498c1'
 
 
@@ -60,7 +60,7 @@ class BuildCMakeExtension(build_ext):
         # Remove old build
         if not os.path.exists('build/vtil.pyd'):
             os.makedirs('build/lib', exist_ok=True)
-
+            changed = False
             # Update submodules
             self.announce('Updating submodules ..')
             if os.path.exists('.git'):
@@ -70,9 +70,11 @@ class BuildCMakeExtension(build_ext):
                 # We are running from a pypi tar.gz version
                 if not os.path.exists('external/core'):
                     git.Repo.clone_from('https://github.com/vtil-project/VTIL-Core.git', 'external/core').git.checkout(CORE_COMMIT)
+                    changed = True
                 if not os.path.exists('external/pybind11'):
                     git.Repo.clone_from('https://github.com/pybind/pybind11.git', 'external/pybind11').git.checkout(PYBIND11_COMMIT)
-            if not os.path.exists('build/VTIL-Python.sln'):
+                    changed = True
+            if changed or not os.path.exists('build/VTIL-Python.sln'):
                 # slow
                 self.announce('Preparing build for platform ..', level=3)
                 self.spawn(self.build_for_platform())
