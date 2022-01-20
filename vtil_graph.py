@@ -224,7 +224,7 @@ def instruction_tostring(ins: vtil.instruction):
         s += ida_lines.COLSTR(', ', ida_lines.SCOLOR_SYMBOL)
         s += ida_lines.COLSTR('[', ida_lines.SCOLOR_SYMBOL)
         s += opstr[1]
-        s += ida_lines.COLSTR(', ', ida_lines.SCOLOR_SYMBOL)
+        s += ida_lines.COLSTR('+', ida_lines.SCOLOR_SYMBOL)
         s += opstr[2]
         s += ida_lines.COLSTR(']', ida_lines.SCOLOR_SYMBOL)
 
