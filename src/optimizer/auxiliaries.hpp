@@ -57,6 +57,14 @@ namespace vtil::python
 				// Constructor
 				//
 				.def( py::init<>() )
+				.def( py::init( [](bool cross_block, bool pack, bool resolve_opaque) {
+						auto p = branch_analysis_flags();
+						p.cross_block = cross_block;
+						p.pack = pack;
+						p.resolve_opaque = resolve_opaque;
+						return p; 
+					} ),
+					py::arg("cross_block") = false, py::arg("pack") = false, py::arg("resolve_opaque") = false )
 
 				// Functions
 				//
