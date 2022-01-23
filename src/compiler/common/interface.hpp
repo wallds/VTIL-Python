@@ -100,6 +100,7 @@ namespace vtil::python
 
 			for ( auto& thread : pool )
 			{
+				py::gil_scoped_release release;
 				thread.join();
 			}
 

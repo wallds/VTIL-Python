@@ -68,6 +68,9 @@ namespace vtil::python
 				;
 
 			( *this )
+				.def( py::init<>() )
+				.def( py::init<uint32_t, uint64_t, bitcnt_t, bitcnt_t, uint64_t>(),
+					py::arg("flags"), py::arg("id"), py::arg("bit_count"), py::arg("bit_offset") = 0, py::arg("architecture") = 0 )
 				// Static
 				//
 
@@ -78,6 +81,13 @@ namespace vtil::python
 				.def_readwrite( "bit_count", &register_desc::bit_count )
 				.def_readwrite( "bit_offset", &register_desc::bit_offset )
 
+				.def_property( "local_id", 
+                    [](register_desc &self) {return self.local_id;}, 
+                    [](register_desc &self, uint64_t v) {self.local_id = v;})
+				.def_property( "architecture", 
+                    [](register_desc &self) {return self.architecture;}, 
+                    [](register_desc &self, uint64_t v) {self.architecture = v;})
+				
 				// Functions
 				//
 				.def( "is_valid", &register_desc::is_valid )

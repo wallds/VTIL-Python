@@ -75,6 +75,7 @@ namespace vtil::python
 				//
 				.def( py::init<>() )
 				.def( py::init<const expression&>() )
+				.def( py::init<const uint64_t>() )
 
 				.def( py::init<const unique_identifier&, bitcnt_t>() )
 

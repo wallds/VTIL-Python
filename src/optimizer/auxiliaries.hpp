@@ -135,30 +135,28 @@ namespace vtil::python
 	class optimizer_py : public py::class_<dummy_optimizer>
 	{
 		public:
-		static auto my_apply_all(vtil::routine* rtn)
-		{
-			return vtil::optimizer::apply_all(rtn);
-		}
+		static auto my_apply_all(vtil::routine* rtn) { return vtil::optimizer::apply_all(rtn); }
+		static auto my_apply_all(vtil::basic_block* blk, bool xblock) { return vtil::optimizer::apply_all(blk, xblock); }
 
-		static auto my_apply_all(vtil::basic_block* blk, bool xblock)
-		{
-			return vtil::optimizer::apply_all(blk, xblock);
-		}
+		static auto my_apply_all_profiled(vtil::routine* rtn) { return vtil::optimizer::apply_all_profiled(rtn); }
+		static auto my_apply_all_profiled(vtil::basic_block* blk, bool xblock) { return vtil::optimizer::apply_all_profiled(blk, xblock); }
 
-		static auto my_apply_all_profiled(vtil::routine* rtn)
-		{
-			return vtil::optimizer::apply_all_profiled(rtn);
-		}
-
-		static auto my_apply_all_profiled(vtil::basic_block* blk, bool xblock)
-		{
-			return vtil::optimizer::apply_all_profiled(blk, xblock);
-		}
+		template<typename T>
+		static auto my_pass(vtil::routine* rtn) { return T{}(rtn); }
+		template<typename T>
+		static auto my_pass(vtil::basic_block* blk, bool xblock){ return T{}(blk, xblock); }
 
 		optimizer_py( const handle& scope, const char* name )
 			: class_( scope, name )
 		{
 			aux_py( *this, "aux");
+			using namespace vtil::optimizer;
+
+#define IMPLEMENT_PASS_X( name, pass ) \
+				.def_static(name, py::overload_cast<vtil::routine*>(&my_pass<pass>)) \
+				.def_static(name, py::overload_cast<vtil::basic_block*, bool>(&my_pass<pass>))
+
+#define IMPLEMENT_PASS( name ) IMPLEMENT_PASS_X(#name, name)
 
 			( *this )
 				// Functions
@@ -168,10 +166,23 @@ namespace vtil::python
 				.def_static("apply_all", py::overload_cast<vtil::basic_block*, bool>(&my_apply_all))
 				.def_static("apply_all_profiled", py::overload_cast<vtil::routine*>(&my_apply_all_profiled))
 				.def_static("apply_all_profiled", py::overload_cast<vtil::basic_block*, bool>(&my_apply_all_profiled))
-				.def_static("dead_code_elimination_pass", [](vtil::routine* rtn) { return vtil::optimizer::dead_code_elimination_pass{}(rtn); })
+				IMPLEMENT_PASS(stack_pinning_pass)
+				IMPLEMENT_PASS(istack_ref_substitution_pass)
+				IMPLEMENT_PASS(bblock_extension_pass)
+				IMPLEMENT_PASS(stack_propagation_pass)
+				IMPLEMENT_PASS(dead_code_elimination_pass)
+				IMPLEMENT_PASS(fast_dead_code_elimination_pass)
+				IMPLEMENT_PASS(fast_reg_propagation_pass)
+				IMPLEMENT_PASS(mov_propagation_pass)
+				IMPLEMENT_PASS_X("symbolic_rewrite_pass_force", symbolic_rewrite_pass<true>)
+				IMPLEMENT_PASS_X("symbolic_rewrite_pass", symbolic_rewrite_pass<false>)
+				IMPLEMENT_PASS(branch_correction_pass)
+				IMPLEMENT_PASS(register_renaming_pass)
 				// End
 				//
 				;
+#undef IMPLEMENT_PASS
+#undef IMPLEMENT_PASS_X
 		}
 	};
 }

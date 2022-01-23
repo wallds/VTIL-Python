@@ -56,7 +56,7 @@ namespace vtil::python
 			( *this )
 				// Properties
 				//
-				.def_readwrite( "base", &instruction::base )
+				.def_readwrite( "base", &instruction::base, py::return_value_policy::reference )
 				.def_readwrite( "operands", &instruction::operands )
 				.def_readwrite( "vip", &instruction::vip )
 

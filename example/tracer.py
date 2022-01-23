@@ -1,12 +1,13 @@
+import sys
+sys.path.append(".")
+
 from pyvtil import *
 
 def main():
     rtn = vtil.routine()
     block, inserted = rtn.create_block(0x0)
-    block = rtn.find_block(0)
     t0, zf = block.tmp(1, 1)
     t1, t2 = block.tmp(64, 64)
-    sp = vtil.REG_SP
 
     block.mov(t1, vtil.REG_IMGBASE)
     block.ldd(t2, t1, 0)
@@ -22,18 +23,14 @@ def main():
     tracer = vtil.tracer()
     
     flag = vtil.optimizer.aux.branch_analysis_flags()
-    exp = tracer.trace(vtil.variable(block.end(), t0))
+    exp = tracer.trace(vtil.symbolic.variable(block.end(), t2))
     branch = vtil.optimizer.aux.analyze_branch(block, tracer, flag)
-    
-    vtil.debug.dump(block.owner)
-    # vtil.optimizer.apply_all(block.owner)
-    # vtil.optimizer.apply_all(block, False)
-    # vtil.optimizer.apply_all(block.owner)
+
     vtil.debug.dump(block.owner)
 
-
-    print('x0: {}'.format(exp))
+    print('t2: {}'.format(exp.simplify(True)))
     pass
+
 
 if __name__ == '__main__':
     main()

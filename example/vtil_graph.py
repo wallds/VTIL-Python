@@ -289,6 +289,8 @@ class MyGraph(ida_graph.GraphViewer):
             #         # op1 op2 is imm -> mark tbranch and fbranch
             #         if dst1.is_immediate() and dst2.is_immediate():
             #             # WTF? how to set edge color
+            #             # SHIT! They ignore the `edge_info` parameter!
+            # https://github.com/idapython/src/blob/3ce5b7f06dfdba36eb84d679c08248734a12036a/pywraps/py_graph.hpp#L431-L432
             #             self.AddEdge(s, list_vip.index(dst1.imm().u64)) # T
             #             self.AddEdge(s, list_vip.index(dst2.imm().u64)) # F
             #             continue

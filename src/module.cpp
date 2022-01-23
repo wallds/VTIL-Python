@@ -44,6 +44,7 @@
 
 #include "architecture/arch/identifier.hpp"
 #include "architecture/arch/instruction_desc.hpp"
+#include "architecture/arch/instruction_set.hpp"
 #include "architecture/arch/operands.hpp"
 #include "architecture/arch/register_desc.hpp"
 #include "architecture/routine/basic_block.hpp"
@@ -71,6 +72,8 @@
 using namespace vtil::python;
 namespace py = pybind11;
 
+struct dummy_common {};
+struct dummy_symbolic {};
 
 PYBIND11_MODULE(vtil, m) {
 	// Hook error function
@@ -78,14 +81,8 @@ PYBIND11_MODULE(vtil, m) {
 	{
 		throw std::runtime_error( msg );
 	};
-
-	auto hello = m.def_submodule( "hello", "VTIL hello" );
-	auto common = m.def_submodule( "common", "VTIL Common" );
-	auto compiler = m.def_submodule( "compiler", "VTIL Compiler" );
-	auto symex = m.def_submodule( "symex", "VTIL SymEx" );
-	// auto optimizer = m.def_submodule( "optimizer", "VTIL Optimizer" );
-	// auto auxiliaries = optimizer.def_submodule( "auxiliaries", "VTIL optimizer auxiliaries" );
-	
+	py::class_<dummy_common> common(m, "common");
+	py::class_<dummy_symbolic> symbolic(m, "symbolic");
 
 	// VTIL Common
 	//
@@ -99,21 +96,25 @@ PYBIND11_MODULE(vtil, m) {
 	//
 	{
 		/* Expressions */
-		unique_identifier_py( symex, "uid" );
-		expression_reference_py( symex, "expression_reference" );
-		expression_py( symex, "expression" );
+		unique_identifier_py( symbolic, "uid" );
+		expression_reference_py( symbolic, "expression_reference" );
+		expression_py( symbolic, "expression" );
 	}
 
 	{
 		/* Architecture */
 		operand_py( m, "operand" );
 
-		// FIXME: vtil.operand.immediate_t
-		// 
+		m.def("make_uint", [](uint64_t value, bitcnt_t bit_count) { return operand(value, bit_count); },
+			py::arg("value"), py::arg("bit_count") = sizeof(uint64_t) * 8);
+		m.def("make_int", [](int64_t value, bitcnt_t bit_count) { return operand(value, bit_count); },
+			py::arg("value"), py::arg("bit_count") = sizeof(int64_t) * 8);
+
 		architecture_identifier_py( m, "architecture_identifier" );
 		m.attr("architecture_default") = vtil::architecture_default;
 		instruction_desc_py( m, "instruction_desc" );
 		register_desc_py( m, "register_desc" );
+		ins_py( m, "ins" );
 		{
 			m.attr("UNDEFINED") = vtil::UNDEFINED;
 			m.attr("REG_IMGBASE") = vtil::REG_IMGBASE;
@@ -132,24 +133,13 @@ PYBIND11_MODULE(vtil, m) {
 		debug_py( m, "debug" );
 
 		/* SymEx Integration */
-		variable_py( m, "variable" );
+		variable_py( symbolic, "variable" );
 
 		/* Value Tracing */
 		tracer_py( m, "tracer" );
 		cached_tracer_py( m, "cached_tracer" );
 
 	}
-
-
-
-
-	// VTIL Compiler
-	{
-		/* Common */
-		pass_interface_py( compiler, "pass_interface" );
-	}
-
-
 
 	// External
 	//
@@ -161,7 +151,8 @@ PYBIND11_MODULE(vtil, m) {
 	// Optimizer
 	//
 	{
-		optimizer_py( m, "optimizer");
+		auto optimizer = optimizer_py( m, "optimizer" );
+		pass_interface_py(optimizer, "pass_interface");
 	}
 	
 #ifdef VERSION_INFO

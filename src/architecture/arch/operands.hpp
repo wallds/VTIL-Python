@@ -60,10 +60,13 @@ namespace vtil::python
 					// Constructor
 					//
 					.def( py::init<>() )
-					.def( py::init<uint64_t, bitcnt_t>() )
+					.def( py::init<uint64_t, bitcnt_t>(), 
+						py::arg("uval"), py::arg("bit_count") )
 
 					// Properties
 					//
+					.def_readwrite( "ival", &operand::immediate_t::ival )
+					.def_readwrite( "uval", &operand::immediate_t::uval )
 					.def_readwrite( "i64", &operand::immediate_t::i64 )
 					.def_readwrite( "u64", &operand::immediate_t::u64 )
 
