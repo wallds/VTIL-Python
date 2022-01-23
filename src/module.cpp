@@ -111,8 +111,16 @@ PYBIND11_MODULE(vtil, m) {
 		// FIXME: vtil.operand.immediate_t
 		// 
 		architecture_identifier_py( m, "architecture_identifier" );
+		m.attr("architecture_default") = vtil::architecture_default;
 		instruction_desc_py( m, "instruction_desc" );
 		register_desc_py( m, "register_desc" );
+		{
+			m.attr("UNDEFINED") = vtil::UNDEFINED;
+			m.attr("REG_IMGBASE") = vtil::REG_IMGBASE;
+			m.attr("REG_FLAGS") = vtil::REG_FLAGS;
+			m.attr("REG_SP") = vtil::REG_SP;
+			m.def("make_undefined", &vtil::make_undefined);
+		}
 
 		/* Instruction Stream */
 		instruction_py( m, "instruction" );

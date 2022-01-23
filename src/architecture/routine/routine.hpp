@@ -108,7 +108,8 @@ namespace vtil::python
 				.def_readonly( "entry_point", &routine::entry_point )
 				.def_readwrite( "routine_convention", &routine::routine_convention )
 				.def_readwrite( "subroutine_convention", &routine::subroutine_convention )
-
+				
+				.def( py::init<const architecture_identifier>(), py::arg("arch_id") = vtil::architecture_default )
 				// Functions
 				//
 				.def( "alloc", &alloc_helper )
@@ -116,7 +117,16 @@ namespace vtil::python
 				.def( "get_cconv", &routine::get_cconv )
 				.def( "set_cconv", &routine::set_cconv )
 				.def( "clone", &routine::clone )
-				//.def( "get_block", &routine::get_block )
+				.def( "find_block", &routine::find_block, py::return_value_policy::reference )
+				.def( "get_block", &routine::get_block, py::return_value_policy::reference )
+				.def( "create_block", &routine::create_block, 
+					py::arg("vip"), py::arg("basic_block") = (basic_block *)nullptr, 
+					py::return_value_policy::reference )
+				.def( "delete_block", &routine::delete_block )
+				.def( "get_exits", &routine::get_exits )
+				.def( "num_blocks", &routine::num_blocks )
+				.def( "num_instructions", &routine::num_instructions )
+				.def( "num_branches", &routine::num_branches )
 				// End
 				//
 				;

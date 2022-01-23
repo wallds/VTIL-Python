@@ -1,12 +1,14 @@
 from pyvtil import *
 
 def main():
-    block = vtil.basic_block(0)
+    rtn = vtil.routine()
+    block, inserted = rtn.create_block(0x0)
+    block = rtn.find_block(0)
     t0, zf = block.tmp(1, 1)
     t1, t2 = block.tmp(64, 64)
-    sp = vtil.register_desc.SP
+    sp = vtil.REG_SP
 
-    block.mov(t1, vtil.register_desc.IMGBASE)
+    block.mov(t1, vtil.REG_IMGBASE)
     block.ldd(t2, t1, 0)
     block.mov(vtil.x86_reg.RAX, 100)
     block.te(zf, t2, 0)

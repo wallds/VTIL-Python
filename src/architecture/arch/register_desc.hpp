@@ -53,12 +53,23 @@ namespace vtil::python
 		register_desc_py( const handle& scope, const char* name )
 			: class_( scope, name )
 		{
+			py::enum_<register_flag>( scope, "register_flag" )
+				.value( "register_virtual", register_flag::register_virtual )
+				.value( "register_physical", register_flag::register_physical )
+				.value( "register_local", register_flag::register_local )
+				.value( "register_flags", register_flag::register_flags )
+				.value( "register_stack_pointer", register_flag::register_stack_pointer )
+				.value( "register_image_base", register_flag::register_image_base )
+				.value( "register_volatile", register_flag::register_volatile )
+				.value( "register_readonly", register_flag::register_readonly )
+				.value( "register_undefined", register_flag::register_undefined )
+				.value( "register_internal", register_flag::register_internal )
+				.value( "register_special", register_flag::register_special )
+				;
+
 			( *this )
 				// Static
 				//
-				.def_property_readonly_static( "SP", [ ] ( const py::object& ) { return REG_SP; } )
-				.def_property_readonly_static( "FLAGS", [ ] ( const py::object& ) { return REG_FLAGS; } )
-				.def_property_readonly_static( "IMGBASE", [ ] ( const py::object& ) { return REG_IMGBASE; } )
 
 				// Properties
 				//
@@ -85,6 +96,9 @@ namespace vtil::python
 
 				.def( "get_mask", &register_desc::get_mask )
 				.def( "overlaps", &register_desc::overlaps )
+				.def( "select", &register_desc::select )
+				.def( "rebase", &register_desc::rebase )
+				.def( "resize", &register_desc::resize )
 				.def( "to_string", &register_desc::to_string )
 
 				.def( "reduce", py::overload_cast< >( &register_desc::reduce ) )

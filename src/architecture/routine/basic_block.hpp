@@ -47,7 +47,7 @@ namespace py = pybind11;
 
 namespace vtil::python
 {
-	class basic_block_py : public py::class_<basic_block>
+	class basic_block_py : public py::class_<basic_block> // , std::unique_ptr<basic_block, py::nodelete>
 	{
 		public:
 		basic_block_py( const handle& scope, const char* name )
@@ -69,11 +69,15 @@ namespace vtil::python
 			( *this )
 				// Constructor
 				//
-				.def( py::init( py::overload_cast< vip_t, vtil::architecture_identifier >( &basic_block::begin ) ), py::arg("entry_vip"), py::arg("arch_id") = architecture_amd64 )
+				// DO NOT USE THIS!!!
+				.def( py::init( py::overload_cast< vip_t, vtil::architecture_identifier >( &basic_block::begin ) ), 
+					py::arg("entry_vip"), 
+					py::arg("arch_id") = architecture_amd64,
+					py::return_value_policy::reference )
 
 				// Properties
 				//
-				.def_readwrite( "owner", &basic_block::owner )
+				.def_readwrite( "owner", &basic_block::owner, py::return_value_policy::reference )
 				.def_readwrite( "entry_vip", &basic_block::entry_vip )
 				.def_readwrite( "prev", &basic_block::prev )
 				.def_readwrite( "sp_offset", &basic_block::sp_offset )
@@ -105,7 +109,7 @@ namespace vtil::python
 				.def( "push_back", [ ] ( basic_block& bbl, instruction& ins ) { bbl.push_back( ins ); } )
 				.def( "is_complete", &basic_block::is_complete )
 
-				.def( "fork", &basic_block::fork )
+				.def( "fork", &basic_block::fork, py::return_value_policy::reference )
 				.def( "tmp", [ ] ( basic_block& bbl, bitcnt_t size ) { return bbl.tmp( size ); } )
 				.def( "tmp", &tmp_helper )
 				.def( "prepare_operand", [ ] ( basic_block& bbl, operand* op ) { return op; /* We use type_caster to explicitly cast to operand */ } )
