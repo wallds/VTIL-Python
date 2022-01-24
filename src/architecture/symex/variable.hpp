@@ -134,7 +134,7 @@ namespace vtil::python
 				.def( "reg", py::overload_cast< >( &variable::reg ) )
 
 				.def( "bit_count", &variable::bit_count )
-				.def( "to_expression", &variable::to_expression )
+				.def( "to_expression", &variable::to_expression, py::arg("unpack") = true)
 				.def( "to_string", &variable::to_string )
 				.def( "reduce", py::overload_cast< >( &variable::reduce ) )
 
@@ -144,6 +144,7 @@ namespace vtil::python
 				.def( "read_by", &variable::read_by )
 				.def( "written_by", &variable::written_by )
 				.def( "accessed_by", &variable::accessed_by )
+				.def( "hash", &variable::hash )
 
 				.def( "__repr__", &variable::to_string )
 				.def( "__str__", &variable::to_string )

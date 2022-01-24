@@ -72,6 +72,7 @@
 using namespace vtil::python;
 namespace py = pybind11;
 
+struct dummy_arch {};
 struct dummy_common {};
 struct dummy_symbolic {};
 
@@ -81,9 +82,16 @@ PYBIND11_MODULE(vtil, m) {
 	{
 		throw std::runtime_error( msg );
 	};
+	py::class_<dummy_arch> arch(m, "arch");
 	py::class_<dummy_common> common(m, "common");
 	py::class_<dummy_symbolic> symbolic(m, "symbolic");
 
+	// VTIL Arch
+	//
+	{
+		arch.def_readonly_static( "size", &arch::size );
+		arch.def_readonly_static( "bit_count", &arch::bit_count );
+	}
 	// VTIL Common
 	//
 	{
@@ -114,6 +122,19 @@ PYBIND11_MODULE(vtil, m) {
 		m.attr("architecture_default") = vtil::architecture_default;
 		instruction_desc_py( m, "instruction_desc" );
 		register_desc_py( m, "register_desc" );
+		{
+			m.attr("register_virtual") = register_virtual;
+			m.attr("register_physical") = register_physical;
+			m.attr("register_local") = register_local;
+			m.attr("register_flags") = register_flags;
+			m.attr("register_stack_pointer") = register_stack_pointer;
+			m.attr("register_image_base") = register_image_base;
+			m.attr("register_volatile") = register_volatile;
+			m.attr("register_readonly") = register_readonly;
+			m.attr("register_undefined") = register_undefined;
+			m.attr("register_internal") = register_internal;
+			m.attr("register_special") = register_special;
+		}
 		ins_py( m, "ins" );
 		{
 			m.attr("UNDEFINED") = vtil::UNDEFINED;

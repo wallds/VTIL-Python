@@ -60,9 +60,9 @@ namespace vtil::python
 			.def( "to_string", &expression_reference::to_string )
 			.def( "__repr__", &expression_reference::to_string )
 			.def( "__str__", &expression_reference::to_string )
+			// TODO: 
 			;
 		}
-
 	};
 	class expression_py : public py::class_<expression>
 	{
@@ -75,7 +75,8 @@ namespace vtil::python
 				//
 				.def( py::init<>() )
 				.def( py::init<const expression&>() )
-				.def( py::init<const uint64_t>() )
+				.def( py::init<const uint64_t, bitcnt_t>(),
+					py::arg("value"), py::arg("bit_count") = sizeof(uint64_t)*8 )
 
 				.def( py::init<const unique_identifier&, bitcnt_t>() )
 
@@ -112,8 +113,10 @@ namespace vtil::python
 				.def( "update", &expression::update )
 				.def( "to_string", &expression::to_string )
 
-				.def( "resize", [ ] ( expression& exp, bitcnt_t size, bool sign ) { return exp.resize( size, sign ); } )
-				.def( "simplify", py::overload_cast< bool >( &expression::simplify ) )
+				.def( "resize", [ ] ( expression& exp, bitcnt_t new_size, bool signed_cast, bool no_explicit ) { 
+						return exp.resize( new_size, signed_cast, no_explicit );
+					}, py::arg("new_size"), py::arg("signed_cast") = false, py::arg("no_explicit") = false )
+				.def( "simplify", py::overload_cast< bool >( &expression::simplify ), py::arg("prettify") = false )
 
 				.def( "is_identical", &expression::is_identical )
 				.def( "equals", &expression::equals )

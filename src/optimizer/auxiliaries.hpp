@@ -178,6 +178,7 @@ namespace vtil::python
 				IMPLEMENT_PASS_X("symbolic_rewrite_pass", symbolic_rewrite_pass<false>)
 				IMPLEMENT_PASS(branch_correction_pass)
 				IMPLEMENT_PASS(register_renaming_pass)
+				IMPLEMENT_PASS(collective_cross_pass)
 				// End
 				//
 				;

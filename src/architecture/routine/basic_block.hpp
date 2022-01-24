@@ -139,6 +139,7 @@ namespace vtil::python
 				.def( "mov", &basic_block::mov<const operand&, const operand&> )
 				.def( "movsx", &basic_block::movsx<const operand&, const operand&> )
 				.def( "store", &basic_block::str<const operand&, const operand&, const operand&> )
+				.def( "str", &basic_block::str<const operand&, const operand&, const operand&> )
 				.def( "ldd", &basic_block::ldd<const operand&, const operand&, const operand&> )
 
 				.def( "neg", &basic_block::neg<const operand&> )
