@@ -192,7 +192,7 @@ dict_cond = {
 def instruction_tostring(ins: vtil.instruction):
     # @https://github.com/vtil-project/VTIL-BinaryNinja/blob/master/vtil/vtil.py
     s = ''
-    s += ida_lines.COLSTR(f'{ins.base.__str__(ins.access_size()):6}',
+    s += ida_lines.COLSTR(f'{ins.base.to_string(ins.access_size()):6}',
                           ida_lines.SCOLOR_INSN)
     s += ' '
     opstr = pack_operands(ins.operands)

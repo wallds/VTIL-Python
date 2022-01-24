@@ -376,6 +376,7 @@ FodyWeavers.xsd
 build*/
 *.pyd
 VTIL.egg-info/
+PYVTIL.egg-info/
 dist/
 .eggs/
 pyvtil/

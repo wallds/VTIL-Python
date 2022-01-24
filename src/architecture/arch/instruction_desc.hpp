@@ -92,8 +92,9 @@ namespace vtil::python
 
 				.def( "reduce", py::overload_cast< >( &instruction_desc::reduce ) )
 
-				.def( "__repr__", &instruction_desc::to_string )
-				.def( "__str__", &instruction_desc::to_string )
+				.def( "to_string", &instruction_desc::to_string )
+				.def( "__repr__", [](const instruction_desc &desc){ return desc.name; } )
+				.def( "__str__", [](const instruction_desc &desc){ return desc.name; } )
 				.def( py::self == py::self )
 				.def( py::self != py::self )
 				.def( py::self < py::self )

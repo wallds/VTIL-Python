@@ -127,9 +127,10 @@ class BuildCMakeExtension(build_ext):
                 "--prefix", "pyvtil"
             ]
 
-
+# NO egg
+# py setup.py install --old-and-unmanageable
 setup(
-    name='VTIL',
+    name='PYVTIL',
     version=VERSION,
     author='Daniel. (@L33T)',
     description='Virtual-machine Translation Intermediate Language',
