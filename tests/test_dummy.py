@@ -278,7 +278,7 @@ def test_optimization_dead_code_elimination_pass_2():
     assert block1.size() == 3
 
 
-def test_simplification():
+def test_optimization_simplification():
     rtn = vtil.routine()
     block, inserted = rtn.create_block(0x1337)
     block.mov(ZAX, 0)
@@ -326,6 +326,89 @@ def test_simplification():
     assert ins.base == vtil.ins.vexit
     assert len(ins.operands) == 1
     assert ins.operands[0].imm().ival == 0
+
+
+
+def test_optimization_bblock_thunk_removal_pass():
+    # Check reduction
+    rtn = vtil.routine()
+    block1, inserted = rtn.create_block(0x1000)
+    block1.js(vtil.REG_FLAGS.select(1, 11), 0x2000, 0x3000)
+    block2 = block1.fork(0x2000)
+    block2.jmp(0x4000)
+    block2.fork(0x4000)
+    block3 = block1.fork(0x3000)
+    block3.jmp(0x4000)
+    block3.fork(0x4000)
+    block4 = rtn.get_block(0x4000)
+    block4.jmp(0x5000)
+    block4.fork(0x5000)
+    block5 = rtn.get_block(0x5000)
+    block5.vexit(0)
+    
+    print(':: Before:')
+    vtil.debug.dump(rtn)
+    vtil.optimizer.apply_all(rtn)
+    print(':: After:')
+    vtil.debug.dump(rtn)
+
+    ins = block1[0]
+    assert ins.base == vtil.ins.vexit
+    assert len(ins.operands) == 1
+    block1 = block2 = block3 = block4 = block5 = None
+    rtn = None
+    # Check tracer validity
+    rtn = vtil.routine()
+    block1, inserted = rtn.create_block(0x1000)
+    block1.push(0x12345678)
+    block1.js(ZCX, 0x2000, 0x3000)
+    block2 = block1.fork(0x2000)
+    block2.jmp(0x4000)
+    block2.fork(0x4000)
+    block3 = block1.fork(0x3000)
+    block3.jmp(0x4000)
+    block3.fork(0x4000)
+    block4 = rtn.get_block(0x4000)
+    block4.pop(ZAX)
+    block4.vexit(0)
+    
+    reg_ax = vtil.register_desc(vtil.register_physical, ZAX, vtil.arch.bit_count, 0)
+
+    print(':: Before:')
+    vtil.debug.dump(rtn)
+    tracer = vtil.tracer()
+    exp1 =  tracer.rtrace_p(vtil.symbolic.variable(block4.end().prev(), reg_ax)).simplify(True)
+
+    vtil.optimizer.apply_all(rtn)
+
+    print(':: After:')
+    vtil.debug.dump(rtn)
+
+    tracer2 = vtil.tracer()
+    exp2 =  tracer2.rtrace_p(vtil.symbolic.variable(block1.end().prev(), reg_ax)).simplify(True)
+
+    assert exp1.hash() == exp2.hash()
+
+
+def test_optimization_branch_correction_pass():
+    rtn = vtil.routine()
+    block1, inserted = rtn.create_block(0x1000)
+    block1.mov(vtil.REG_FLAGS.select(1,0), 0)
+    block1.js(vtil.REG_FLAGS.select(1,0), 0x2000, 0x3000)
+    block2 = block1.fork(0x2000)
+    block2.push(vtil.REG_FLAGS)
+    block2.vexit(0)
+    block3 = block1.fork(0x3000)
+    block3.push(vtil.REG_FLAGS)
+    block3.vexit(0)
+    
+    print(':: Before:')
+    vtil.debug.dump(rtn)
+    vtil.optimizer.apply_all(rtn)
+    print(':: After:')
+    vtil.debug.dump(rtn)
+
+    assert block1.size() == 3
 
 
 def test_3():

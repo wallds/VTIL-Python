@@ -71,7 +71,7 @@ class GraphTrace(_base_graph_action_handler_t):
                     choose = 0
                 # it = it.prev()
                 tracer = vtil.tracer()
-                print(tracer.rtrace_p(vtil.variable(
+                print(tracer.rtrace_p(vtil.symbolic.variable(
                     it, ops[choose].reg())).simplify(True))
         return 0
 

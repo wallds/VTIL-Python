@@ -54,8 +54,9 @@ namespace vtil::python
 			: class_( scope, name )
 		{
 			( *this )
-			.def( "simplify", []( const expression::reference *p, bool prettify ){ return p->simplify(prettify); }, 
+			.def( "simplify", []( const expression::reference p, bool prettify ){ return p.simplify(prettify); }, 
 							py::arg("prettify") = false )
+			.def( "hash", []( const expression::reference p ){ return p.hash(); } )
 
 			.def( "to_string", &expression_reference::to_string )
 			.def( "__repr__", &expression_reference::to_string )
