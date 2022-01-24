@@ -121,7 +121,14 @@ namespace vtil::python
 			( *this )
 				// Functions
 				//
-				.def_static("analyze_branch", &vtil::optimizer::aux::analyze_branch);
+				.def_static("is_local", &vtil::optimizer::aux::is_local)
+				.def_static("is_used", &vtil::optimizer::aux::is_used)
+				.def_static("is_alive", &vtil::optimizer::aux::is_alive)
+				.def_static("revive_register", &vtil::optimizer::aux::revive_register)
+				.def_static("analyze_branch", &vtil::optimizer::aux::analyze_branch)
+				.def_static("is_semantic_nop", &vtil::optimizer::aux::is_semantic_nop)
+				.def_static("remove_nops", [](basic_block* blk, bool semantic_nops, bool volatile_nops) { return vtil::optimizer::aux::remove_nops(blk, semantic_nops, volatile_nops); })
+				.def_static("remove_nops", [](routine* rtn, bool semantic_nops, bool volatile_nops) { return vtil::optimizer::aux::remove_nops(rtn, semantic_nops, volatile_nops); })
 
 				// End
 				//
