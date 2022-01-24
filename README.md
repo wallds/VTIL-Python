@@ -47,6 +47,17 @@ cmake --install . --component pyd --prefix .
 
 This will give you `vtil.pyd` in the `build` directory.
 
+<details>
+<summary>Installation</summary>
+
+```shell
+python3 setup.py install_lib
+```
+
+</details>
+
+
+
 # IntelliSense
 ```
 set PYTHONPATH=.

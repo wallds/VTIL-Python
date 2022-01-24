@@ -47,22 +47,145 @@ namespace py = pybind11;
 
 namespace vtil::python
 {
-	class expression_reference_py : public py::class_<expression::reference>
+	class expression_reference_py : public py::class_<expression_reference>
 	{
 		public:
 		expression_reference_py( const handle& scope, const char* name )
 			: class_( scope, name )
 		{
 			( *this )
+
+			.def( "is_valid", &expression_reference::is_valid )
+
+			.def( "make_lazy", py::overload_cast<>(&expression_reference::make_lazy) )
 			.def( "simplify", []( const expression::reference p, bool prettify ){ return p.simplify(prettify); }, 
-							py::arg("prettify") = false )
-			.def( "hash", []( const expression::reference p ){ return p.hash(); } )
+				py::arg("prettify") = false )
+			.def( "resize", []( expression_reference exp, bitcnt_t new_size, bool signed_cast, bool no_explicit ) { 
+						return exp.resize( new_size, signed_cast, no_explicit );
+				}, py::arg("new_size"), py::arg("signed_cast") = false, py::arg("no_explicit") = false )
+			.def( "hash", &expression_reference::hash )
+			.def( "is_simple", &expression_reference::is_simple )
+			.def( "update", &expression_reference::update )
+
+			.def( "equals", &expression_reference::equals )
+			.def( "is_identical", &expression_reference::is_identical )
+			.def( "size", &expression_reference::size )
+
+#define IMPLEMENT_PROPERTY(name) .def_property_readonly( #name, [](expression_reference cls) { return cls->name; })
+			IMPLEMENT_PROPERTY(uid)
+			IMPLEMENT_PROPERTY(op)
+			IMPLEMENT_PROPERTY(lhs)
+			IMPLEMENT_PROPERTY(rhs)
+			IMPLEMENT_PROPERTY(complexity)
+			IMPLEMENT_PROPERTY(depth)
+			IMPLEMENT_PROPERTY(hash_value)
+			IMPLEMENT_PROPERTY(signature)
+			IMPLEMENT_PROPERTY(simplify_hint)
+			IMPLEMENT_PROPERTY(is_lazy)
+			IMPLEMENT_PROPERTY(value)
+#undef IMPLEMENT_PROPERTY
+
+#define IMPLEMENT_FUNC(name) .def( #name, [](expression_reference cls) { return cls->name(); })
+			IMPLEMENT_FUNC(get_op_desc)
+
+			IMPLEMENT_FUNC(is_variable)
+			IMPLEMENT_FUNC(is_expression)
+			IMPLEMENT_FUNC(is_unary)
+			IMPLEMENT_FUNC(is_binary)
+
+			IMPLEMENT_FUNC(known_mask)
+			IMPLEMENT_FUNC(unknown_mask)
+			IMPLEMENT_FUNC(known_one)
+			IMPLEMENT_FUNC(known_zero)
+			IMPLEMENT_FUNC(is_constant)
+#undef IMPLEMENT_FUNC
 
 			.def( "to_string", &expression_reference::to_string )
 			.def( "__repr__", &expression_reference::to_string )
 			.def( "__str__", &expression_reference::to_string )
-			// TODO: 
+
+			.def( "popcnt", [ ] ( expression_reference rhs ) { return __popcnt( rhs ); } )
+			.def( "mask", [ ] ( expression_reference rhs ) { return __mask( rhs ); } )
+			.def( "bsr", [ ] ( expression_reference rhs ) { return __bsr( rhs ); } )
+			.def( "bsf", [ ] ( expression_reference rhs ) { return __bsf( rhs ); } )
+			.def( "__invert__", [ ] ( expression_reference rhs ) { return ~rhs; } )
+			.def( "__neg__", [ ] ( expression_reference rhs ) { return -rhs; } )
+
+			// End
+			//
 			;
+
+#define IMPLEMENT_OPERATOR( name, ... ) 															  \
+		.def( name, [ ] ( expression_reference lhs, expression_reference rhs ) { return __VA_ARGS__; } )	  \
+		.def( name, [ ] ( expression_reference lhs, int64_t rhs ) { return __VA_ARGS__; } )			  \
+		.def( name, [ ] ( expression_reference lhs, uint64_t rhs ) { return __VA_ARGS__; } )
+
+			( *this )
+				// Functions
+				//
+				IMPLEMENT_OPERATOR( "rotr", __rotr( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "rotl", __rotl( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "mulhi", mulhi( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "umulhi", umulhi( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "umul", umul( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "udiv", udiv( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "urem", urem( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "bt", __bt( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "iff", __if( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "max", __max( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "min", __min( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "umax", __umax( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "umin", __umin( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "ugt", __ugreat( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "uge", __ugreat_eq( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "ueq", __uequal( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "une", __unot_equal( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "ule", __uless_eq( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "ult", __uless( lhs, rhs ) )
+				IMPLEMENT_OPERATOR( "__add__", lhs + rhs )
+				IMPLEMENT_OPERATOR( "__sub__", lhs - rhs )
+				IMPLEMENT_OPERATOR( "__mul__", lhs * rhs )
+				IMPLEMENT_OPERATOR( "__truediv__", lhs / rhs )
+				IMPLEMENT_OPERATOR( "__mod__", lhs % rhs )
+				IMPLEMENT_OPERATOR( "__and__", lhs & rhs )
+				IMPLEMENT_OPERATOR( "__or__", lhs | rhs )
+				IMPLEMENT_OPERATOR( "__xor__", lhs ^ rhs )
+				IMPLEMENT_OPERATOR( "__lshift__", lhs << rhs )
+				IMPLEMENT_OPERATOR( "__rshift__", lhs >> rhs )
+				IMPLEMENT_OPERATOR( "__gt__", lhs > rhs )
+				IMPLEMENT_OPERATOR( "__ge__", lhs >= rhs )
+				IMPLEMENT_OPERATOR( "__lt__", lhs < rhs )
+				IMPLEMENT_OPERATOR( "__le__", lhs <= rhs )
+				IMPLEMENT_OPERATOR( "__eq__", lhs == rhs )
+				IMPLEMENT_OPERATOR( "__ne__", lhs != rhs )
+
+				// End
+				//
+				;
+#undef IMPLEMENT_OPERATOR
+
+#define IMPLEMENT_ROPERATOR( name, ... ) 															  \
+		.def( name, [ ] ( const expression_reference rhs, int64_t lhs ) { return __VA_ARGS__; } )			  \
+		.def( name, [ ] ( const expression_reference rhs, uint64_t lhs ) { return __VA_ARGS__; } )
+
+			( *this )
+				// Functions
+				//
+				IMPLEMENT_ROPERATOR( "__radd__", lhs + rhs )
+				IMPLEMENT_ROPERATOR( "__rsub__", lhs - rhs )
+				IMPLEMENT_ROPERATOR( "__rmul__", lhs* rhs )
+				IMPLEMENT_ROPERATOR( "__rtruediv__", lhs / rhs )
+				IMPLEMENT_ROPERATOR( "__rmod__", lhs% rhs )
+				IMPLEMENT_ROPERATOR( "__rand__", lhs& rhs )
+				IMPLEMENT_ROPERATOR( "__ror__", lhs | rhs )
+				IMPLEMENT_ROPERATOR( "__rxor__", lhs^ rhs )
+				IMPLEMENT_ROPERATOR( "__rlshift__", lhs << rhs )
+				IMPLEMENT_ROPERATOR( "__rrshift__", lhs >> rhs )
+
+				// End
+				//
+				;
+#undef IMPLEMENT_ROPERATOR
 		}
 	};
 	class expression_py : public py::class_<expression>
