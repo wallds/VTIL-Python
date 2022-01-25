@@ -58,7 +58,7 @@ namespace vtil::python
 				//
 				.def( py::init<>() )
 				.def( py::init<const cached_tracer&>() )
-
+				.def_readwrite( "cache", &cached_tracer::cache )
 				// Functions
 				//
 				.def( "trace", &cached_tracer::trace )

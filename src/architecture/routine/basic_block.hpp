@@ -92,11 +92,13 @@ namespace vtil::python
 
 				// Functions
 				//
+				.def( "signal_modification", &basic_block::signal_modification )
 				.def( "label_begin", &basic_block::label_begin )
 				.def( "label_end", &basic_block::label_end )
 		        .def( "__iter__", [](const basic_block &s) { return py::make_iterator(s.begin(), s.end()); },
 					py::keep_alive<0, 1>() /* Essential: keep object alive while iterator exists */)
 				.def( "__len__", &basic_block::size )
+				.def( "empty", &basic_block::empty )
 				.def( "size", &basic_block::size )
 				.def( "back", &basic_block::back )
 				.def( "front", &basic_block::front )
@@ -107,8 +109,12 @@ namespace vtil::python
 				.def( "__getitem__", &basic_block::operator[] )
 				.def( "acquire", py::overload_cast< basic_block::const_iterator&>(&basic_block::acquire) )
 				.def( "erase", &basic_block::erase )
+				.def( "pop_front", &basic_block::pop_front )
+				.def( "pop_back", &basic_block::pop_back )
+				.def( "clear", &basic_block::clear, py::return_value_policy::reference )
 				.def( "insert", [ ] ( basic_block& bbl, basic_block::const_iterator& it, instruction& ins ) { bbl.insert( it, std::move( ins ) ); } )
 				.def( "push_back", [ ] ( basic_block& bbl, instruction& ins ) { bbl.push_back( ins ); } )
+				.def( "push_front", [ ] ( basic_block& bbl, instruction& ins ) { bbl.push_front( ins ); } )
 				.def( "is_complete", &basic_block::is_complete )
 
 				.def( "fork", &basic_block::fork, py::return_value_policy::reference_internal )

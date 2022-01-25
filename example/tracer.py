@@ -20,7 +20,7 @@ def main():
     block3 = block.fork(0x2000)
     block3.vexit(0)
 
-    tracer = vtil.tracer()
+    tracer = vtil.cached_tracer()
     
     flag = vtil.optimizer.aux.branch_analysis_flags()
     exp = tracer.trace(vtil.symbolic.variable(block.end(), t2))
