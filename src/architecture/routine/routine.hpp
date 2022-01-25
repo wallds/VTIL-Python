@@ -117,11 +117,11 @@ namespace vtil::python
 				.def( "get_cconv", &routine::get_cconv )
 				.def( "set_cconv", &routine::set_cconv )
 				.def( "clone", &routine::clone )
-				.def( "find_block", &routine::find_block, py::return_value_policy::reference )
-				.def( "get_block", &routine::get_block, py::return_value_policy::reference )
+				.def( "find_block", &routine::find_block, py::return_value_policy::reference_internal )
+				.def( "get_block", &routine::get_block, py::return_value_policy::reference_internal )
 				.def( "create_block", &routine::create_block, 
 					py::arg("vip"), py::arg("basic_block") = (basic_block *)nullptr, 
-					py::return_value_policy::reference )
+					py::return_value_policy::reference_internal )
 				.def( "delete_block", &routine::delete_block )
 				.def( "get_exits", &routine::get_exits )
 				.def( "num_blocks", &routine::num_blocks )

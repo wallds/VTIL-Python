@@ -233,8 +233,6 @@ def test_optimization_dead_code_elimination_pass_2():
     print(':: After:')
     vtil.debug.dump(rtn)
     assert block.size() == 2
-    block = None
-    rtn = None
     # with jmp
     rtn = vtil.routine()
     block1, inserted = rtn.create_block(0x1337)
@@ -252,8 +250,6 @@ def test_optimization_dead_code_elimination_pass_2():
     vtil.debug.dump(rtn)
     assert block1.size() == 1
     # with te jmp
-    block1 = block2 = None
-    rtn = None
     rtn = vtil.routine()
     block1, inserted = rtn.create_block(0x1337)
     block1.push(ZAX)
@@ -355,8 +351,6 @@ def test_optimization_bblock_thunk_removal_pass():
     ins = block1[0]
     assert ins.base == vtil.ins.vexit
     assert len(ins.operands) == 1
-    block1 = block2 = block3 = block4 = block5 = None
-    rtn = None
     # Check tracer validity
     rtn = vtil.routine()
     block1, inserted = rtn.create_block(0x1000)

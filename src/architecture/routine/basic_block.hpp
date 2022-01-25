@@ -111,7 +111,7 @@ namespace vtil::python
 				.def( "push_back", [ ] ( basic_block& bbl, instruction& ins ) { bbl.push_back( ins ); } )
 				.def( "is_complete", &basic_block::is_complete )
 
-				.def( "fork", &basic_block::fork, py::return_value_policy::reference )
+				.def( "fork", &basic_block::fork, py::return_value_policy::reference_internal )
 				.def( "tmp", [ ] ( basic_block& bbl, bitcnt_t size ) { return bbl.tmp( size ); } )
 				.def( "tmp", &tmp_helper )
 				.def( "prepare_operand", [ ] ( basic_block& bbl, operand* op ) { return op; /* We use type_caster to explicitly cast to operand */ } )
