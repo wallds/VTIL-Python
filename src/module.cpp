@@ -58,6 +58,7 @@
 
 #include "common/util/fnv64.hpp"
 // #include "common/util/fnv128.hpp"
+#include "common/math/operators.hpp"
 
 #include "compiler/common/interface.hpp"
 
@@ -75,6 +76,7 @@ namespace py = pybind11;
 struct dummy_arch {};
 struct dummy_common {};
 struct dummy_symbolic {};
+struct dummy_math {};
 
 PYBIND11_MODULE(vtil, m) {
 	// Hook error function
@@ -85,6 +87,7 @@ PYBIND11_MODULE(vtil, m) {
 	py::class_<dummy_arch> arch(m, "arch");
 	py::class_<dummy_common> common(m, "common");
 	py::class_<dummy_symbolic> symbolic(m, "symbolic");
+	py::class_<dummy_math> math(m, "math");
 
 	// VTIL Arch
 	//
@@ -108,7 +111,9 @@ PYBIND11_MODULE(vtil, m) {
 		expression_reference_py( symbolic, "expression_reference" );
 		expression_py( symbolic, "expression" );
 	}
-
+	{
+		operator_id_py( math, "operators" );
+	}
 	{
 		/* Architecture */
 		operand_py( m, "operand" );
