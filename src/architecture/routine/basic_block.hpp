@@ -117,6 +117,9 @@ namespace vtil::python
 				.def( "push_front", [ ] ( basic_block& bbl, instruction& ins ) { bbl.push_front( ins ); } )
 				.def( "is_complete", &basic_block::is_complete )
 
+				// In fact the return value lifecycle here should be bound to `routine`, 
+				// but I don't know how to do that.
+				//
 				.def( "fork", &basic_block::fork, py::return_value_policy::reference_internal )
 				.def( "tmp", [ ] ( basic_block& bbl, bitcnt_t size ) { return bbl.tmp( size ); } )
 				.def( "tmp", &tmp_helper )
