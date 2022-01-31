@@ -1,8 +1,6 @@
 import threading
-import sys
-sys.path.append(".")
-
 from pyvtil import *
+
 
 class simple_nop_remove_pass(vtil.optimizer.pass_interface):
     def __init__(self, parallel=True) -> None:

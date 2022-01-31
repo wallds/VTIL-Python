@@ -53,26 +53,13 @@ class GraphTrace(_base_graph_action_handler_t):
             for i in range(place.lnnum - 1):
                 it = it.next()
             ins = it.get()
-            ops = []
+            if not it.get().base.is_branching():
+                it = it.next()
+            tracer = vtil.tracer()
             for i in ins.operands:
                 if i.is_register():
-                    ops.append(i)
-            if ops:
-                if len(ops) > 1:
-                    msg = ''
-                    for i, _op in enumerate(ops):
-                        msg += f'{i}: {str(_op)}\n'
-                    choose = ida_kernwin.ask_long(0, msg)
-                    if choose is None:
-                        choose = 0
-                    if choose < 0 or choose >= len(ops):
-                        return 0
-                else:
-                    choose = 0
-                # it = it.prev()
-                tracer = vtil.tracer()
-                print(tracer.rtrace_p(vtil.symbolic.variable(
-                    it, ops[choose].reg())).simplify(True))
+                    print(
+                        f'{i} = {tracer.rtrace(vtil.symbolic.variable(it, i.reg())).simplify(True)}')
         return 0
 
     def update(self, ctx):

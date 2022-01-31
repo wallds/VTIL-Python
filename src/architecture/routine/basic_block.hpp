@@ -57,16 +57,20 @@ namespace vtil::python
 			// 
 			py::class_<il_iterator>( scope, "il_iterator" )
 				.def( py::init<>() )
-				.def( "get", [ ] ( const il_iterator& it ) { return *it; } )
+				.def( "get", [ ] ( const il_iterator& it ) { return +it; }, py::return_value_policy::reference )
 				.def( "prev", [ ] ( const il_iterator& it ) { auto p = it; --( p ); return p; } )
 				.def( "next", [ ] ( const il_iterator& it ) { auto p = it; ++( p ); return p; } )
-				.def( py::self == py::self );
-			py::class_<il_const_iterator>( scope, "il_const_iterator" )
-				.def( py::init<>() )
-				.def( "get", [ ] ( const il_const_iterator& it ) { return *it; } )
-				.def( "prev", [ ] ( const il_const_iterator& it ) { auto p = it; --( p ); return p; } )
-				.def( "next", [ ] ( const il_const_iterator& it ) { auto p = it; ++( p ); return p; } )
-				.def( py::self == py::self );
+				.def( py::self == py::self )
+				.def( py::self != py::self )
+				
+				
+				;
+			// py::class_<il_const_iterator>( scope, "il_const_iterator" )
+			// 	.def( py::init<>() )
+			// 	.def( "get", [ ] ( const il_const_iterator& it ) { return *it; } )
+			// 	.def( "prev", [ ] ( const il_const_iterator& it ) { auto p = it; --( p ); return p; } )
+			// 	.def( "next", [ ] ( const il_const_iterator& it ) { auto p = it; ++( p ); return p; } )
+			// 	.def( py::self == py::self );
 
 			( *this )
 				// Constructor
@@ -102,8 +106,8 @@ namespace vtil::python
 				.def( "size", &basic_block::size )
 				.def( "back", &basic_block::back )
 				.def( "front", &basic_block::front )
-				.def( "wback", &basic_block::wback )
-				.def( "wfront", &basic_block::wfront )
+				.def( "wback", &basic_block::wback, py::return_value_policy::reference )
+				.def( "wfront", &basic_block::wfront, py::return_value_policy::reference )
 				.def( "end", py::overload_cast< >( &basic_block::end ) )
 				.def( "begin", py::overload_cast< >( &basic_block::begin ) )
 				.def( "__getitem__", &basic_block::operator[] )
@@ -125,10 +129,8 @@ namespace vtil::python
 				.def( "tmp", &tmp_helper )
 				.def( "prepare_operand", [ ] ( basic_block& bbl, operand* op ) { return op; /* We use type_caster to explicitly cast to operand */ } )
 
-				// .def( "shift_sp", &basic_block::shift_sp,
-				// 	py::arg("offset"), py::arg("merge_instance") = false, py::arg("const_iterator") = basic_block::const_iterator{} )
-				.def( "shift_sp", [](basic_block& bbl, int offset) { return bbl.shift_sp(offset); },
-					py::arg("offset"))
+				.def( "shift_sp", &basic_block::shift_sp, 
+					py::arg("offset"), py::arg("merge_instance") = false, py::arg("const_iterator") = basic_block::iterator{} )
 				.def( "vemits", &basic_block::vemits )
 				.def( "pushf", &basic_block::pushf )
 				.def( "popf", &basic_block::popf )

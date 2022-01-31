@@ -32,7 +32,7 @@
 // |--------------------------------------------------------------------------|
 // | File name               | Link for further information                   |
 // |-------------------------|------------------------------------------------|
-// | unique_identifier.hpp   | https://github.com/vtil-project/VTIL-Core      |
+// | auxiliaries.hpp         | https://github.com/vtil-project/VTIL-Core      |
 // |                         | https://github.com/pybind/pybind11             |
 // |--------------------------------------------------------------------------|
 //
@@ -161,7 +161,8 @@ namespace vtil::python
 
 #define IMPLEMENT_PASS_X( name, pass ) \
 				.def_static(name, py::overload_cast<vtil::routine*>(&my_pass<pass>)) \
-				.def_static(name, py::overload_cast<vtil::basic_block*, bool>(&my_pass<pass>))
+				.def_static(name, py::overload_cast<vtil::basic_block*, bool>(&my_pass<pass>), \
+					py::arg("blk"), py::arg("xblock") = false)
 
 #define IMPLEMENT_PASS( name ) IMPLEMENT_PASS_X(#name, name)
 

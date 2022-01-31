@@ -32,7 +32,7 @@
 // |--------------------------------------------------------------------------|
 // | File name               | Link for further information                   |
 // |-------------------------|------------------------------------------------|
-// | unique_identifier.hpp   | https://github.com/vtil-project/VTIL-Core      |
+// | directive.hpp           | https://github.com/vtil-project/VTIL-Core      |
 // |                         | https://github.com/pybind/pybind11             |
 // |--------------------------------------------------------------------------|
 //
@@ -40,33 +40,71 @@
 
 #include <vtil/vtil>
 #include <pybind11/pybind11.h>
+#include <pybind11/operators.h>
 
 using namespace vtil::symbolic;
 namespace py = pybind11;
 
+struct dummy_directive {};
 
 namespace vtil::python
 {
-	class unique_identifier_py : public py::class_<unique_identifier>
+	class directive_py : public py::class_<dummy_directive>
 	{
+		class instance_py : public py::class_<directive::instance>
+		{
 		public:
-		unique_identifier_py( const handle& scope, const char* name )
+		instance_py( const handle& scope, const char* name )
+			: class_( scope, name )
+			{
+				( *this )
+					.def( "to_string", &directive::instance::to_string )
+					.def( "__repr__", &directive::instance::to_string )
+					.def( "__str__", &directive::instance::to_string )
+					//.def( py::self + py::self )
+					.def( py::self - py::self )
+					// .def( py::self | py::self )
+					// .def( py::self & py::self )
+					// .def( py::self ^ py::self )
+					.def( py::self * py::self )
+					.def( py::self * int64_t() )
+					// .def( py::self / py::self )
+					// .def( py::self % py::self )
+
+					;
+			}
+		};
+
+		public:
+		directive_py( const handle& scope, const char* name )
 			: class_( scope, name )
 		{
+			py::enum_<directive::matching_type>( ( *this ), "matching_type" )
+				.value( "match_any", directive::matching_type::match_any )
+				.value( "match_variable", directive::matching_type::match_variable )
+				.value( "match_constant", directive::matching_type::match_constant )
+				.value( "match_expression", directive::matching_type::match_expression )
+                .value( "match_non_expression", directive::matching_type::match_non_expression )
+				.value( "match_non_constant", directive::matching_type::match_non_constant )
+
+				;
+			
+            instance_py( (*this), "instance" );
+
 			( *this )
-				// Constructor
-				//
-				.def( py::init<std::string>() )
+				.def_readonly_static( "A", &directive::A )
+				.def_readonly_static( "B", &directive::B )
+				.def_readonly_static( "C", &directive::C )
+				.def_readonly_static( "D", &directive::D )
+				.def_readonly_static( "E", &directive::E )
+				.def_readonly_static( "F", &directive::F )
+				.def_readonly_static( "G", &directive::G )
 
-				// Functions
-				//
-				.def( "get_variable", [ ] ( const unique_identifier& cls ) { return cls.get<vtil::symbolic::variable>(); } )
-
-				.def( "hash", &unique_identifier::hash )
-				.def( "__eq__", [ ] ( const unique_identifier& a, const unique_identifier& b ) { return a == b; } )
-				.def( "__repr__", &unique_identifier::to_string )
-				.def( "__str__", &unique_identifier::to_string )
-
+				.def_readonly_static( "V", &directive::V )
+				.def_readonly_static( "U", &directive::U )
+				.def_readonly_static( "Q", &directive::Q )
+				.def_readonly_static( "W", &directive::W )
+				.def_readonly_static( "X", &directive::X )
 				// End
 				//
 				;

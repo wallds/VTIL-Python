@@ -59,11 +59,13 @@
 #include "common/util/fnv64.hpp"
 // #include "common/util/fnv128.hpp"
 #include "common/math/operators.hpp"
+#include "common/math/bitwise.hpp"
 
 #include "compiler/common/interface.hpp"
 
 #include "symex/expressions/unique_identifier.hpp"
 #include "symex/expressions/expression.hpp"
+#include "symex/directive.hpp"
 
 #include "external/arm64_reg.hpp"
 #include "external/x86_reg.hpp"
@@ -110,9 +112,11 @@ PYBIND11_MODULE(vtil, m) {
 		unique_identifier_py( symbolic, "uid" );
 		expression_reference_py( symbolic, "expression_reference" );
 		expression_py( symbolic, "expression" );
+		directive_py( symbolic, "directive" );
 	}
 	{
 		operator_id_py( math, "operators" );
+		bit_vector_py( math, "bit_vector" );
 	}
 	{
 		/* Architecture */
@@ -146,6 +150,7 @@ PYBIND11_MODULE(vtil, m) {
 			m.attr("REG_IMGBASE") = vtil::REG_IMGBASE;
 			m.attr("REG_FLAGS") = vtil::REG_FLAGS;
 			m.attr("REG_SP") = vtil::REG_SP;
+			m.attr("invalid_vip") = vtil::invalid_vip;
 			m.def("make_undefined", &vtil::make_undefined);
 		}
 

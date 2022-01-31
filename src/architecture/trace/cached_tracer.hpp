@@ -65,6 +65,7 @@ namespace vtil::python
 				.def( "flush", py::overload_cast< >( &cached_tracer::flush ) )
 				.def( "flush", py::overload_cast< basic_block* >( &cached_tracer::flush ) )
 
+				.def( "__call__", &cached_tracer::trace_p )
 				// End
 				//
 				;

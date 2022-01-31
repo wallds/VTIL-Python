@@ -29,6 +29,12 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE VERSION_INFO="${VTIL_PYTHON_V
 
 target_link_libraries(${PROJECT_NAME} PRIVATE VTIL)
 
+if (MSVC)
+    add_definitions(/bigobj)
+else ()
+    add_definitions(-Wa,-mbig-obj)
+endif ()
+
 if(WIN32)
     set(EXTENSION ".pyd")
 else()

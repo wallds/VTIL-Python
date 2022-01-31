@@ -61,6 +61,7 @@ namespace vtil::python
 				//
 				.def( py::init<>() )
 				.def( py::init<pointer, bitcnt_t>() )
+				.def( py::init([](expression exp, bitcnt_t bit_count) { return variable::memory_t(exp, bit_count); }) )
 
 				// Properties
 				//

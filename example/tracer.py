@@ -1,7 +1,5 @@
-import sys
-sys.path.append(".")
-
 from pyvtil import *
+
 
 def main():
     rtn = vtil.routine()
@@ -14,14 +12,14 @@ def main():
     block.mov(vtil.x86_reg.RAX, 100)
     block.te(zf, t2, 0)
     block.js(zf, 0x1000, 0x2000)
-    
+
     block2 = block.fork(0x1000)
     block2.vexit(0)
     block3 = block.fork(0x2000)
     block3.vexit(0)
 
     tracer = vtil.cached_tracer()
-    
+
     flag = vtil.optimizer.aux.branch_analysis_flags()
     exp = tracer.trace(vtil.symbolic.variable(block.end(), t2))
     branch = vtil.optimizer.aux.analyze_branch(block, tracer, flag)

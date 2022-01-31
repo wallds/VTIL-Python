@@ -40,6 +40,8 @@
 
 #include <vtil/vtil>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/functional.h>
 
 using namespace vtil::symbolic;
 namespace py = pybind11;
@@ -70,6 +72,11 @@ namespace vtil::python
 			.def( "equals", &expression_reference::equals )
 			.def( "is_identical", &expression_reference::is_identical )
 			.def( "size", &expression_reference::size )
+			.def( "get_bool", [](const expression::reference p) { return *p->get<bool>(); })
+			.def( "get_uint8", [](const expression::reference p) { return *p->get<uint8_t>(); })
+			.def( "get_uint16", [](const expression::reference p) { return *p->get<uint16_t>(); })
+			.def( "get_uint32", [](const expression::reference p) { return *p->get<uint32_t>(); })
+			.def( "get_uint64", [](const expression::reference p) { return *p->get<uint64_t>(); })
 
 #define IMPLEMENT_PROPERTY(name) .def_property_readonly( #name, [](expression_reference cls) { return cls->name; })
 			IMPLEMENT_PROPERTY(uid)
@@ -99,7 +106,15 @@ namespace vtil::python
 			IMPLEMENT_FUNC(known_zero)
 			IMPLEMENT_FUNC(is_constant)
 #undef IMPLEMENT_FUNC
-
+			.def( "evaluate", [](expression_reference cls, std::function<std::optional<uint64_t>(const vtil::symbolic::unique_identifier& uid)> lookup) 
+			{
+				vtil::math::bit_vector result;
+				{
+					py::gil_scoped_acquire acquire;
+					result = cls->evaluate(lookup);
+				}
+				return result;
+			}, pybind11::call_guard<pybind11::gil_scoped_release>())
 			.def( "to_string", &expression_reference::to_string )
 			.def( "__repr__", &expression_reference::to_string )
 			.def( "__str__", &expression_reference::to_string )
@@ -115,9 +130,10 @@ namespace vtil::python
 			//
 			;
 
-#define IMPLEMENT_OPERATOR( name, ... ) 															  \
-		.def( name, [ ] ( expression_reference lhs, expression_reference rhs ) { return __VA_ARGS__; } )	  \
-		.def( name, [ ] ( expression_reference lhs, int64_t rhs ) { return __VA_ARGS__; } )			  \
+#define IMPLEMENT_OPERATOR( name, ... ) 															  	\
+		.def( name, [ ] ( expression_reference lhs, expression_reference rhs ) { return __VA_ARGS__; } )\
+		.def( name, [ ] ( expression_reference lhs, expression rhs ) { return __VA_ARGS__; } )	  		\
+		.def( name, [ ] ( expression_reference lhs, int64_t rhs ) { return __VA_ARGS__; } )			  	\
 		.def( name, [ ] ( expression_reference lhs, uint64_t rhs ) { return __VA_ARGS__; } )
 
 			( *this )
@@ -164,8 +180,8 @@ namespace vtil::python
 				;
 #undef IMPLEMENT_OPERATOR
 
-#define IMPLEMENT_ROPERATOR( name, ... ) 															  \
-		.def( name, [ ] ( const expression_reference rhs, int64_t lhs ) { return __VA_ARGS__; } )			  \
+#define IMPLEMENT_ROPERATOR( name, ... ) 															  	\
+		.def( name, [ ] ( const expression_reference rhs, int64_t lhs ) { return __VA_ARGS__; } )		\
 		.def( name, [ ] ( const expression_reference rhs, uint64_t lhs ) { return __VA_ARGS__; } )
 
 			( *this )
@@ -248,6 +264,17 @@ namespace vtil::python
 				.def( "evaluate", [ ] ( expression& exp, std::function < uint64_t( unique_identifier )>& fn ) { exp.evaluate( fn ); } )
 				.def( "make_lazy", py::overload_cast< >( &expression::make_lazy ) )
 
+				.def( "get_int", [](const expression exp) { return *exp.get<true>(); })
+				.def( "get_uint", [](const expression exp) { return *exp.get<false>(); })
+				
+#define IMPLEMENT_FUNC(name) .def( #name, [](expression cls) { return cls.name(); })
+				IMPLEMENT_FUNC(known_mask)
+				IMPLEMENT_FUNC(unknown_mask)
+				IMPLEMENT_FUNC(known_one)
+				IMPLEMENT_FUNC(known_zero)
+				IMPLEMENT_FUNC(is_constant)
+#undef IMPLEMENT_FUNC
+
 				.def( "__repr__", &expression::to_string )
 				.def( "__str__", &expression::to_string )
 
@@ -258,9 +285,11 @@ namespace vtil::python
 				.def( "__invert__", [ ] ( const expression& rhs ) { return ~rhs; } )
 				.def( "__neg__", [ ] ( const expression& rhs ) { return -rhs; } )
 
+
 				// End
 				//
 				;
+
 
 #define IMPLEMENT_OPERATOR( name, ... ) 															  \
 		.def( name, [ ] ( const expression& lhs, const expression& rhs ) { return __VA_ARGS__; } )	  \
