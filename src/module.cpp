@@ -55,6 +55,7 @@
 #include "architecture/trace/tracer.hpp"
 #include "architecture/trace/cached_tracer.hpp"
 #include "architecture/symex/variable.hpp"
+#include "architecture/symex/pointer.hpp"
 
 #include "common/util/fnv64.hpp"
 // #include "common/util/fnv128.hpp"
@@ -165,6 +166,7 @@ PYBIND11_MODULE(vtil, m) {
 
 		/* SymEx Integration */
 		variable_py( symbolic, "variable" );
+		pointer_py( symbolic, "pointer" );
 
 		/* Value Tracing */
 		tracer_py( m, "tracer" );
