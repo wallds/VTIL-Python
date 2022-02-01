@@ -71,6 +71,9 @@ namespace vtil::python
 				.def( py::init<>() )
 				.def( py::init<uint32_t, uint64_t, bitcnt_t, bitcnt_t, uint64_t>(),
 					py::arg("flags"), py::arg("id"), py::arg("bit_count"), py::arg("bit_offset") = 0, py::arg("architecture") = 0 )
+
+				.def( py::self != py::self )
+				.def( py::self == py::self )
 				// Static
 				//
 
