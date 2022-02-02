@@ -63,7 +63,7 @@ namespace vtil::python
 				.def( py::self - py::self )
 				// Functions
 				//
-				.def_property_readonly_static( "base", [](pointer &cls) {return cls.base;} )
+				.def_property_readonly( "base", [](const pointer &cls) {return cls.base;} )
 
 				//.def( "hash", &pointer::hash )
 
