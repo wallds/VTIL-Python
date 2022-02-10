@@ -63,9 +63,9 @@ namespace vtil::python
 			( *this )
 				// Static helpers
 				//
-				.def( "dump", py::overload_cast< const instruction&, const instruction* >( &dump ) )
-				.def( "dump", py::overload_cast< const basic_block*, std::set<const basic_block*>* >( &dump ) )
-				.def( "dump", py::overload_cast< const routine* >( &dump ) )
+				.def_static( "dump", py::overload_cast< const instruction&, const instruction* >( &dump ) )
+				.def_static( "dump", py::overload_cast< const basic_block*, std::set<const basic_block*>* >( &dump ) )
+				.def_static( "dump", py::overload_cast< const routine* >( &dump ) )
 
 				// End
 				//
