@@ -124,9 +124,9 @@ PYBIND11_MODULE(vtil, m) {
 		operand_py( m, "operand" );
 
 		m.def("make_uint", [](uint64_t value, bitcnt_t bit_count) { return operand(value, bit_count); },
-			py::arg("value"), py::arg("bit_count") = sizeof(uint64_t) * 8);
+			py::arg("value"), py::arg("bit_count") = vtil::arch::bit_count);
 		m.def("make_int", [](int64_t value, bitcnt_t bit_count) { return operand(value, bit_count); },
-			py::arg("value"), py::arg("bit_count") = sizeof(int64_t) * 8);
+			py::arg("value"), py::arg("bit_count") = vtil::arch::bit_count);
 
 		architecture_identifier_py( m, "architecture_identifier" );
 		m.attr("architecture_default") = vtil::architecture_default;
