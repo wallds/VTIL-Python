@@ -216,7 +216,9 @@ namespace vtil::python
 				.def( py::init<>() )
 				.def( py::init<const expression&>() )
 				.def( py::init<const uint64_t, bitcnt_t>(),
-					py::arg("value"), py::arg("bit_count") = sizeof(uint64_t)*8 )
+					py::arg("value"), py::arg("bit_count") = vtil::arch::bit_count )
+				.def( py::init<const int64_t, bitcnt_t>(),
+					py::arg("value"), py::arg("bit_count") = vtil::arch::bit_count )
 
 				.def( py::init<const unique_identifier&, bitcnt_t>() )
 

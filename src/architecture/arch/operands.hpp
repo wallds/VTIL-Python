@@ -140,7 +140,7 @@ namespace pybind11::detail
 			if ( py::isinstance<py::int_>( src ) )
 			{
 				auto value = py::cast<uint64_t>( src );
-				this->value = new operand( value, sizeof( value ) * 8 );
+				this->value = new operand( value, vtil::arch::bit_count );
 				return true;
 			}
 			return explicit_cast<arm64_reg>(src) || explicit_cast<x86_reg>(src) || explicit_cast<register_desc>(src);
