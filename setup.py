@@ -12,7 +12,7 @@ import os
 
 VERSION = '0.0.3'
 CORE_COMMIT = '8ca24f7b4b4bdd918bfe6ae084fe408984634fa2'
-PYBIND11_COMMIT = '96b943be1d39958661047eadac506745ba92b2bc'
+PYBIND11_COMMIT = '9907bedce517ea291c70c6a7b5dfec9e594f41df'
 
 
 class CMakeExtension(Extension):
