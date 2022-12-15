@@ -97,7 +97,8 @@ class BuildCMakeExtension(build_ext):
             # if 'Visual Studio 16 2019' not in [gen.name for gen in cmakegenerators.get_generators()]:
             #     raise Exception('Visual Studio 2019 not found')
             
-            extras = ['-G', 'Visual Studio 16 2019']
+            # extras = ['-G', 'Visual Studio 16 2019']
+            extras = []
 
         return \
             [
