@@ -34,4 +34,11 @@ jobs:
 
     - name: Build
       run: |
-        py setup.py install --old-and-unmanageable
+        python setup.py bdist_wheel
+
+    - name: 'Upload Artifact'
+      uses: actions/upload-artifact@v3
+      with:
+        name: my-artifact
+        path: ./dist/*.whl
+        retention-days: 5
