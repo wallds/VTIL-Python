@@ -34,4 +34,4 @@ jobs:
 
     - name: Build
       run: |
-        py setup.py build --old-and-unmanageable
+        py setup.py install --old-and-unmanageable
