@@ -6,12 +6,11 @@ jobs:
   build:
     # Skip building pull requests from the same repository
     if: ${{ github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) }}
-    runs-on: windows-latest
     strategy:
       fail-fast: false
       matrix:
-        runs-on: windows-latest
-        arch: x64
+        runs-on: [windows-latest]
+        arch: [x64]
         python:
         - '3.10'
         - '3.11'
