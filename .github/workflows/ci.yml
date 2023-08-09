@@ -12,6 +12,7 @@ jobs:
         runs-on: [windows-latest]
         arch: [x64]
         python:
+        - '3.9'
         - '3.10'
         - '3.11'
     
